@@ -34,6 +34,7 @@ movie-web-app/
 │
 ├── docker-compose.yml
 └── .env.example
+```
 
 ## TMDB API
 
