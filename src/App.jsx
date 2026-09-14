@@ -5,6 +5,7 @@ import Movies from './pages/Movies'
 import Movie from './pages/Movie'
 import TVShows from './pages/TVShows'
 import TVShow from './pages/TVShow'
+import Genres from './pages/Genre'
 import NowShowing from './pages/NowShowing'
 
 function App() {
@@ -15,15 +16,17 @@ function App() {
         <Link to='/movies'>Movies</Link>
         <Link to='/tvshows'>TV Shows</Link>
         <Link to='/now-showing'>Now Showing</Link>
+        <Link to='/genres'>Genres</Link>
       </nav>
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/movies' element={<Movies />} />
-        <Route path='/movies/:id' element={<Movie />} />
-        <Route path='/tvshows' element={<TVShows />} />
-        <Route path='/tvshows/:id' element={<TVShow />} />
-        <Route path='/now-showing' element={<NowShowing />} />
-      </Routes>
+        <Route path='/' element={<Home/>}/>
+        <Route path='/movies' element={<Movies/>}/>
+        <Route path='/movies/:id' element={<Movie/>}/>
+        <Route path='/tvshows' element={<TVShows/>}/>
+        <Route path='/tvshows/:id' element={<TVShow/>}/>
+        <Route path='/now-showing' element={<NowShowing />}/>
+        <Route path='/genres' element={<Genres/>}/>
+        </Routes>
     </BrowserRouter>
   )
 }
