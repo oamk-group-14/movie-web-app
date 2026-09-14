@@ -1,9 +1,11 @@
 import express from 'express'
 
-import { searchMovies, getMovie, searchActors } from '../controllers/movieController.js'
+import { searchMovies, getMovie, getNowShowing, searchActors } from '../controllers/movieController.js'
 
 const router = express.Router()
 
+// Movies currently in theatres
+router.get('/now-showing', getNowShowing)
 // Search movies
 router.get('/search', searchMovies)
 
@@ -12,5 +14,6 @@ router.get('/actors/search', searchActors)
 
 // Get movie by ID
 router.get('/:id', getMovie)
+
 
 export default router
