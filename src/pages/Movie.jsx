@@ -9,7 +9,11 @@ function Movie() {
     const [error, setError] = useState('')
 
     useEffect(() => {
+        let ignore = false; // Used to ignore a previous request if it was still loading it
+
         const getMovie = async () => {
+            setError(''); // Previous errors are cleared
+            setMovie(null); // Loading message comes even when switching searches
             try {
                 // Fetch movie details from backend
                 const response = await fetch(
@@ -22,16 +26,18 @@ function Movie() {
                 }
 
                 const data = await response.json()
-                setMovie(data);
+                if (!ignore) setMovie(data);
             }
 
             catch (error) {
                 console.error(error)
-                setError('Unable to load movie')
+                if (!ignore) setError('Unable to load movie')
             }
         }
 
         getMovie();
+
+        return () => { ignore = true; };
     }, [id])
 
     // Show error message if fetching fails
