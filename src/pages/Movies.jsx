@@ -4,68 +4,8 @@ import { Link } from 'react-router-dom';
 function Movies() {
     const [query, setQuery] = useState('')
     const [movies, setMovies] = useState([])
-   // const [actorQuery, setActorQuery] = useState('')
     const [actors, setActors] = useState([])
     const [error, setError] = useState('')
-
-    /*const searchMovies = async () => {
-        // Check that the search field is not empty
-        if (!query.trim()) {
-            setError('Please enter a movie title')
-            return
-        }
-
-        try {
-            setError('')
-
-            // Search movies through the backend
-            const response = await fetch(
-                `http://localhost:3000/api/movies/search?query=${encodeURIComponent(query)}`
-            )
-
-            // Check if the request was successful
-            if (!response.ok) {
-                throw new Error('Movie search failed')
-            }
-
-            const data = await response.json()
-            console.log(data)
-
-            // Save search results to state
-            setMovies(data.results || [])
-        }
-
-        catch (error) {
-            console.error(error)
-            setError('Unable to search for movies')
-        }
-    }
-
-    const searchActors = async () => {
-        if (!query.trim()) {
-            setError('Please enter an actor name')
-            return
-        }
-
-        try {
-            setError('')
-
-            const response = await fetch(
-                `http://localhost:3000/api/movies/actors/search?query=${encodeURIComponent(query)}`
-            )
-
-            if (!response.ok) {
-                throw new Error('Actor search failed')
-            }
-
-            const data = await response.json()
-
-            setActors(data.results || [])
-        } catch (error) {
-            console.error(error)
-            setError('Unable to search for actors')
-        }
-    }*/
 
     const search = async () => {
         if (!query.trim()) {
@@ -100,29 +40,6 @@ function Movies() {
             setError('Unable to search')
         }
     }
-
-    /*const searchActors = async () => { // Check that the search field is not empty 
-        if (!actorQuery.trim()) { setError('Please enter an actor name') 
-            return 
-        } 
-        
-        try { setError('') 
-            
-            // Search actors through the backend 
-            const response = await fetch( `http://localhost:3000/api/movies/actors/search?query=${encodeURIComponent(actorQuery)}` ) 
-            // Check if the request was successful 
-            if (!response.ok) { 
-                throw new Error('Actor search failed') 
-            } 
-            const data = await response.json() 
-            
-            // Save search results to state 
-            setActors(data.results || []) 
-        } 
-        catch (error) { console.error(error) 
-            setError('Unable to search for actors') 
-        } 
-    }*/
 
     // Return movie details to frontend
     return (
