@@ -4,37 +4,41 @@ import { Link } from 'react-router-dom';
 function TVShows() {
     const [query, setQuery] = useState('')
     const [tvshows, setTvShows] = useState([])
+    const [actors, setActors] = useState([])
     const [error, setError] = useState('')
 
+
     const searchTvShows = async () => {
-        // Check that the search field is not empty
         if (!query.trim()) {
-            setError('Please enter tv show title')
+            setError('Please enter a show title or actor name')
             return
         }
 
         try {
             setError('')
 
-            // Search TV shows through the backend
-            const response = await fetch(
+            const actorResponse = await fetch(
+                `http://localhost:3000/api/tvshows/actors/search?query=${encodeURIComponent(query)}`
+            )
+
+            const tvshowResponse = await fetch(
                 `http://localhost:3000/api/tvshows/search?query=${encodeURIComponent(query)}`
             )
 
-            // Check if the request was successful
-            if (!response.ok) {
-                throw new Error('Tv show search failed')
+            if (!tvshowResponse.ok || !actorResponse.ok) {
+                throw new Error('Search failed')
             }
 
-            const data = await response.json()
+            const actorData = await actorResponse.json()
+            const tvshowData = await tvshowResponse.json()
+            
+            setActors(actorData.results || [])
+            setTvShows(tvshowData.results || [])
+            
 
-            // Save search results to state
-            setTvShows(data.results || [])
-        }
-
-        catch (error) {
+        } catch (error) {
             console.error(error)
-            setError('Unable to search for tv shows')
+            setError('Unable to search')
         }
     }
 
@@ -55,6 +59,27 @@ function TVShows() {
             </button>
 
             {error && <p>{error}</p>}
+
+            <div>
+                {actors.map((tvshow) => (
+                    <div key={tvshow.id}>
+                        <Link to={`/tvshows/${tvshow.id}`}>
+                            <h2>{tvshow.title}</h2>
+
+                            {tvshow.poster_path && (
+                                <img
+                                    src={`https://image.tmdb.org/t/p/w300${tvshow.poster_path}`}
+                                    alt={tvshow.title}
+                                    width="200"
+                                />
+                            )}
+                        </Link>
+
+                        <p>{tvshow.release_date}</p>
+                        <p>{tvshow.vote_average}</p>
+                    </div>
+                ))}
+            </div>
 
             <div>
                 {tvshows.map((tvshow) => (

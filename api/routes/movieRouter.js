@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { searchMovies, getMovie, getNowShowing } from '../controllers/movieController.js'
+import { searchMovies, getMovie, getNowShowing, searchActors } from '../controllers/movieController.js'
 
 const router = express.Router()
 
@@ -8,6 +8,10 @@ const router = express.Router()
 router.get('/now-showing', getNowShowing)
 // Search movies
 router.get('/search', searchMovies)
+
+// Search actors
+router.get('/actors/search', searchActors)
+
 // Get movie by ID
 router.get('/:id', getMovie)
 
