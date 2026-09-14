@@ -7,8 +7,11 @@ function TVShow() {
     const [error, setError] = useState('')
 
     useEffect(() => {
+        let ignore = false; // Used to ignore a previous request if it was still loading it
         // Get TV show ID from the URL
         const getTvShow = async () => {
+            setError(''); // Previous errors are cleared
+            setTvShow(null); // Loading message comes even when switching searches
             try  {
                 // Fetch TV show details from backend
                 const response = await fetch(
@@ -21,16 +24,18 @@ function TVShow() {
                 }
 
                 const data = await response.json()
-                setTvShow(data);
+                if (!ignore) setTvShow(data);
             }
 
             catch (error) {
                 console.error(error)
-                setError('Unable to load TV Shows')
+                if (!ignore) setError('Unable to load TV Shows')
             }
         }
 
         getTvShow();
+
+        return () => { ignore = true; };
     }, [id]) 
 
     // Show error message if fetching fails
