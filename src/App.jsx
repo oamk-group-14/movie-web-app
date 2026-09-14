@@ -1,5 +1,5 @@
-import './App.css'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route} from 'react-router-dom'
+import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Movies from './pages/Movies'
 import Movie from './pages/Movie'
@@ -10,12 +10,7 @@ import NowShowing from './pages/NowShowing'
 function App() {
   return (
     <BrowserRouter>
-      <nav>
-        <Link to='/'>Home</Link>
-        <Link to='/movies'>Movies</Link>
-        <Link to='/tvshows'>TV Shows</Link>
-        <Link to='/now-showing'>Now Showing</Link>
-      </nav>
+      <Navbar />
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/movies' element={<Movies />} />
