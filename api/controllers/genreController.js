@@ -21,6 +21,24 @@ export const getGenres = async (req, res) => {
     }
 }
 
+export const getTvGenres = async (req, res) => {
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/genre/tv/list?language=en`,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+                    accept: "application/json"
+                }
+            }
+        );
+        const data = await response.json()
+        res.json(data.genres)
+    } catch (error) {
+        res.status(500).json({ error: "internal server error" });
+    }
+}
+
+
 // Search movies by genre
 export const discoverMovies = async (req, res) => {
 	const genreId = req.params.id

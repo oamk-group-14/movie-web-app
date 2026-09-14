@@ -1,11 +1,13 @@
 import express from 'express'
 
-import { getGenres, discoverMovies, discoverTvShows } from '../controllers/genreController.js'
+import { getGenres, discoverMovies, discoverTvShows, getTvGenres } from '../controllers/genreController.js'
 
 const router = express.Router()
 
-//Get all genres
+//Get all movie genres
 router.get('/genres', getGenres)
+
+router.get('/tvGenres', getTvGenres)
 
 //Get genres by id
 router.get('/discover/movie/genre/:id', discoverMovies)
