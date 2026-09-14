@@ -5,6 +5,7 @@ import Movies from './pages/Movies'
 import Movie from './pages/Movie'
 import TVShows from './pages/TVShows'
 import TVShow from './pages/TVShow'
+import Genres from './pages/Genre'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Link to='/'>Home</Link>
         <Link to='/movies'>Movies</Link>
         <Link to='/tvshows'>TV Shows</Link>
+        <Link to='/genres'>Genres</Link>
       </nav>
       <Routes>
         <Route path='/' element={<Home/>}/>
@@ -20,6 +22,7 @@ function App() {
         <Route path='/movies/:id' element={<Movie/>}/>
         <Route path='/tvshows' element={<TVShows/>}/>
         <Route path='/tvshows/:id' element={<TVShow/>}/>
+        <Route path='/genres' element={<Genres/>}/>
         </Routes>
     </BrowserRouter>
   )
