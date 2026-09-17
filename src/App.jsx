@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Movies from './pages/Movies'
@@ -7,8 +8,9 @@ import TVShows from './pages/TVShows'
 import TVShow from './pages/TVShow'
 import Genres from './pages/Genre'
 import NowShowing from './pages/NowShowing'
-import { ProtectedRoute } from './components/ProtectedRoute.jsx'
 import Account from './pages/Account'
+import Register from './pages/Register.jsx'
+import Login from './pages/Login.jsx'
 
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
         <Route path='/tvshows/:id' element={<TVShow />} />
         <Route path='/now-showing' element={<NowShowing />} />
         <Route path='/genres' element={<Genres />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/login' element={<Login />} />
 
         {/*Pages visible to only logged in users should be wrapped like this.*/}
         <Route path='/account' element={
