@@ -43,6 +43,85 @@ export const searchTvShows = async (req, res) => {
   }
 };
 
+export const searchActors = async (req, res) => {
+    try {
+        const { query } = req.query
+
+        // Check that search term exists
+        if (!query) {
+            return res.status(400).json({
+                error: 'Actor name is missing'
+            })
+        }
+
+        // Find the actor
+        const personResponse = await fetch(
+            `https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+                    accept: 'application/json'
+                }
+            }
+        )
+
+        if (!personResponse.ok) {
+            return res.status(personResponse.status).json({
+                error: 'Actor search failed'
+            })
+        }
+
+        const personData = await personResponse.json()
+
+        // Check if an actor was found
+        if (!personData.results || personData.results.length === 0) {
+            return res.json({
+                results: []
+            })
+        }
+
+        // Use the first matching person
+        const actor = personData.results[0]
+
+        // Get the actor's movie credits
+        const creditsResponse = await fetch(
+            `https://api.themoviedb.org/3/person/${actor.id}/tv_credits?language=en-US`,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+                    accept: 'application/json'
+                }
+            }
+        )
+
+        if (!creditsResponse.ok) {
+            return res.status(creditsResponse.status).json({
+                error: 'Could not get actor credits'
+            })
+        }
+
+        const creditsData = await creditsResponse.json()
+
+        const uniqueCredits = creditsData.cast.filter(
+          (show, index, self) =>
+          index === self.findIndex((item) => item.id === show.id)
+        )
+        
+        // Return actor + their movies
+        res.json({
+            actor: actor,
+            results: uniqueCredits
+        })
+
+    } catch (error) {
+        console.error('Actor search error:', error)
+
+        res.status(500).json({
+            error: 'An error occurred on the server'
+        })
+    }
+}
+
 export const getTvShow = async (req, res) => {
   try {
     // Get TV show ID from URL
@@ -75,6 +154,7 @@ export const getTvShow = async (req, res) => {
 
     const data = await response.json();
 
+    
     // Send TV show details to frontend
     res.json(data);
   } catch (error) {
