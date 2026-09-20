@@ -107,7 +107,7 @@ export const searchActors = async (req, res) => {
           index === self.findIndex((item) => item.id === show.id)
         )
         
-        // Return actor + their movies
+        // Return actor + their shows
         res.json({
             actor: actor,
             results: uniqueCredits
