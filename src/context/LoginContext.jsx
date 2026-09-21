@@ -30,6 +30,20 @@ export function LoginProvider({ children }) {
 
     };
 
+    const register = async (email, password) => {
+        const response = await fetch("http://localhost:3000/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error (errorData.message);
+        }
+        return await response.json();
+    };
+
+
     // NOT TESTED because other parts are not ready yet. Test at the end of the week
     const login = async (email, password) => {
         const response = await fetch("/api/auth/login", {
@@ -68,7 +82,7 @@ export function LoginProvider({ children }) {
 
     };
 
-    const value = { user, token, logout, login, deleteAccount, loading };
+    const value = { user, token, logout, login, register, deleteAccount, loading };
 
     return (
         <LoginContext.Provider value={value}>
