@@ -13,7 +13,6 @@ function Navbar() {
         <Link to="/movies">Movies</Link>
         <Link to="/tvshows">TV Shows</Link>
         <Link to="/now-showing">Now Showing</Link>
-        <Link to='/genres'>Genres</Link>
       </div>
 
       {/* Login and Sign in links */}

@@ -17,14 +17,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', testRouter);
 app.use('/api/movies', movieRouter);
 app.use('/api/tvshows', tvShowRouter);
-<<<<<<< HEAD
-=======
-app.use('/api', genreRouter);
 app.use('/api/auth', authRouter);
-
-
-
->>>>>>> e12969e092cd0620632e03cbd51db327875347f2
 
 // Health check endpoint for database connectivity
 app.get('/api/health', async (req, res) => {

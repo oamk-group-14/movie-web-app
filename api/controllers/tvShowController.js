@@ -102,10 +102,15 @@ export const searchActors = async (req, res) => {
 
         const creditsData = await creditsResponse.json()
 
-        // Return actor + their movies
+        const uniqueCredits = creditsData.cast.filter(
+          (show, index, self) =>
+          index === self.findIndex((item) => item.id === show.id)
+        )
+        
+        // Return actor + their shows
         res.json({
             actor: actor,
-            results: creditsData.cast || []
+            results: uniqueCredits
         })
 
     } catch (error) {
@@ -149,6 +154,7 @@ export const getTvShow = async (req, res) => {
 
     const data = await response.json();
 
+    
     // Send TV show details to frontend
     res.json(data);
   } catch (error) {
