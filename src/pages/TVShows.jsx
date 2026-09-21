@@ -64,18 +64,18 @@ function TVShows() {
                 {actors.map((tvshow) => (
                     <div key={tvshow.id}>
                         <Link to={`/tvshows/${tvshow.id}`}>
-                            <h2>{tvshow.title}</h2>
+                            <h2>{tvshow.name}</h2>
 
                             {tvshow.poster_path && (
                                 <img
                                     src={`https://image.tmdb.org/t/p/w300${tvshow.poster_path}`}
-                                    alt={tvshow.title}
+                                    alt={tvshow.name}
                                     width="200"
                                 />
                             )}
                         </Link>
 
-                        <p>{tvshow.release_date}</p>
+                        <p>{tvshow.first_air_date}</p>
                         <p>{tvshow.vote_average}</p>
                     </div>
                 ))}

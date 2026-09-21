@@ -26,7 +26,6 @@ app.use('/api/auth', authRouter);
 
 
 
-
 // Health check endpoint for database connectivity
 app.get('/api/health', async (req, res) => {
   try {
