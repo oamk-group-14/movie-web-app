@@ -22,7 +22,7 @@ app.use('/', testRouter);
 app.use('/api/movies', movieRouter);
 app.use('/api/tvshows', tvShowRouter);
 app.use('/api', genreRouter);
-app.use('/api/auth', authRouter)
+app.use('/api/auth', authRouter);
 
 
 
