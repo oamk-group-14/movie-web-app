@@ -6,7 +6,6 @@ import Movies from './pages/Movies'
 import Movie from './pages/Movie'
 import TVShows from './pages/TVShows'
 import TVShow from './pages/TVShow'
-import Genres from './pages/Genre'
 import NowShowing from './pages/NowShowing'
 import Account from './pages/Account'
 import Register from './pages/Register.jsx'
@@ -24,7 +23,6 @@ function App() {
         <Route path='/tvshows' element={<TVShows />} />
         <Route path='/tvshows/:id' element={<TVShow />} />
         <Route path='/now-showing' element={<NowShowing />} />
-        <Route path='/genres' element={<Genres />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
 

@@ -1,11 +1,33 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import MediaCard from '../components/MediaCard'
+import MediaGrid from '../components/MediaGrid';
+
 
 function Movies() {
     const [query, setQuery] = useState('')
     const [movies, setMovies] = useState([])
     const [actors, setActors] = useState([])
+    const [genres, setGenres] = useState([])
+    const [showGenres, setShowGenres] = useState(false)
+    const [selectedGenre, setSelectedGenre] = useState(null)
     const [error, setError] = useState('')
+
+    useEffect(() => {
+        const loadGenres = async () => {
+            try {
+                const response = await fetch(
+                    'http://localhost:3000/api/movies/genres'
+                )
+
+                const data = await response.json()
+                setGenres(data)
+            } catch (error) {
+                console.error(error)
+            }
+        }
+
+        loadGenres()
+    }, [])
 
     const search = async () => {
         if (!query.trim()) {
@@ -41,69 +63,100 @@ function Movies() {
         }
     }
 
+    const searchByGenre = async (genreId) => {
+        try {
+            setError('')
+
+            const response = await fetch(
+                `http://localhost:3000/api/movies/genre/${genreId}`
+            )
+
+            if (!response.ok) {
+                throw new Error('Genre search failed')
+            }
+
+            const data = await response.json()
+
+            setMovies(data)
+            setSelectedGenre(genreId)
+        } catch (error) {
+            console.error(error)
+            setError('Unable to search by genre')
+        }
+    }
+
     // Return movie details to frontend
     return (
-        <div>
+        <div className="media-page">
             <h1>Movies</h1>
 
-            <input
-                type="text"
-                placeholder="Search movies..."
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-            />
-            
-            <button onClick={search}>
-                Search
-            </button>
-            
+            <div className="media-search">
+                <input
+                    type="text"
+                    placeholder="Search movies..."
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                />
+                
+                <button onClick={search}>
+                    Search
+                </button>
+                
+                <button className="genre-button" onClick={() => setShowGenres(!showGenres)}>
+                    Genres
+                </button>
+            </div>
+
+            {showGenres && (
+                <div className="genre-list">
+                    {genres.map((genre) => (
+                        <button
+                            key={genre.id}
+                            onClick={() => searchByGenre(genre.id)}
+                        >
+                            {genre.name}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {error && <p>{error}</p>}
 
-            <div>
+            <MediaGrid>
                 {actors.map((movie) => (
-                    <div key={movie.id}>
-                        <Link to={`/movies/${movie.id}`}>
-                            <h2>{movie.title}</h2>
-
-                            {movie.poster_path && (
-                                <img
-                                    src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                                    alt={movie.title}
-                                    width="200"
-                                />
-                            )}
-                        </Link>
-
-                        <p>{movie.release_date}</p>
-                        <p>{movie.vote_average}</p>
-                    </div>
+                    <MediaCard
+                        key={movie.id}
+                        id={movie.id}
+                        title={movie.title}
+                        posterUrl={
+                            movie.poster_path
+                                ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                                : null
+                        }
+                        date={movie.release_date}
+                        rating={movie.vote_average}
+                        type="movie"
+                    />
                 ))}
-            </div>
 
-            <div>
                 {movies.map((movie) => (
-                    <div key={movie.id}>
-                        {/*Link to movie page*/}
-                        <Link to={`/movies/${movie.id}`}> 
-                            <h2>{movie.title}</h2>
-
-                            {movie.poster_path && (
-                                <img
-                                    src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                                    alt={movie.title}
-                                    width="200"
-                                />
-                            )}
-                        </Link>
-
-                        <p>{movie.release_date}</p>
-                        <p>{movie.vote_average}</p>
-                    </div>
+                    <MediaCard
+                        key={movie.id}
+                        id={movie.id}
+                        title={movie.title}
+                        posterUrl={
+                            movie.poster_path
+                                ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                                : null
+                        }
+                        date={movie.release_date}
+                        rating={movie.vote_average}
+                        type="movie"
+                    />
                 ))}
-            </div>
+            </MediaGrid>
         </div>
     )
 }
 
-export default Movies
+export default Movies;

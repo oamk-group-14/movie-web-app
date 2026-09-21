@@ -85,7 +85,7 @@ export const searchActors = async (req, res) => {
 
         // Get the actor's movie credits
         const creditsResponse = await fetch(
-            `https://api.themoviedb.org/3/person/${actor.id}/movie_credits?language=en-US`,
+            `https://api.themoviedb.org/3/person/${actor.id}/tv_credits?language=en-US`,
             {
                 headers: {
                     Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
@@ -160,3 +160,43 @@ export const getTvShow = async (req, res) => {
     });
   }
 };
+
+export const getTvGenres = async (req, res) => {
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/genre/tv/list?language=en`,
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+                    accept: "application/json"
+                }
+            }
+        );
+        const data = await response.json()
+        res.json(data.genres)
+    } catch (error) {
+        res.status(500).json({ error: "internal server error" });
+    }
+}
+
+//Search tv-shows by genre
+export const discoverTvShows = async (req, res) => {
+    const genreId = req.params.id 
+
+    try {
+
+    const response = await fetch (`https://api.themoviedb.org/3/discover/tv?with_genres=${genreId}&include_adult=false&include_null_first_air_dates=false&language=en-US&page=1&sort_by=popularity.desc`,
+        {
+            headers: {
+                Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+                accept: "application/json"
+            }
+        }
+    );
+    const data = await response.json()
+    //Send results to frontend
+    res.json(data.results)
+    
+    } catch (error) {
+        res.status(500).json({ error: "internal server error" });
+    }
+} 

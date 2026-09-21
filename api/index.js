@@ -5,9 +5,6 @@ import errorHandler from './middleware/errorHandler.js'
 import testRouter from './routes/testRouter.js'
 import movieRouter from './routes/movieRouter.js'
 import tvShowRouter from './routes/tvShowRouter.js'
-import genreRouter from './routes/genreRouter.js'
-
-
 
 const port = process.env.PORT || 3000
 
@@ -20,10 +17,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', testRouter);
 app.use('/api/movies', movieRouter);
 app.use('/api/tvshows', tvShowRouter);
-app.use('/api', genreRouter);
-
-
-
 
 // Health check endpoint for database connectivity
 app.get('/api/health', async (req, res) => {

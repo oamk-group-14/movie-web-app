@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import MediaCard from '../components/MediaCard'
+import MediaGrid from '../components/MediaGrid'
 
 function NowShowing() {
     const [movies, setMovies] = useState([])
@@ -50,28 +51,22 @@ function NowShowing() {
     }
 
     return (
-        <div>
+        <div className="media-page">
             <h1>Now Showing</h1>
 
-            <div>
+            <MediaGrid>
                 {movies.map((movie) => (
-                    <div key={movie.id}>
-                        <Link to={`/movies/${movie.id}`}>
-                            <h2>{movie.title}</h2>
-
-                            {movie.posterUrl && (
-                                <img
-                                    src={movie.posterUrl}
-                                    alt={movie.title}
-                                    width="200"
-                                />
-                            )}
-                        </Link>
-
-                        {movie.year && <p>{movie.year}</p>}
-                    </div>
+                    <MediaCard
+                        key={movie.id}
+                        id={movie.id}
+                        title={movie.title}
+                        posterUrl={movie.posterUrl}
+                        date={movie.year}
+                        rating={movie.voteAverage}
+                        type="movie"
+                    />
                 ))}
-            </div>
+            </MediaGrid>
         </div>
     )
 }
