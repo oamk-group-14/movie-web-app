@@ -66,7 +66,7 @@ export function LoginProvider({ children }) {
 
     // NOT TESTED because other parts are not ready yet. Test at the end of the week
     const deleteAccount = async () => {
-        const response = await fetch("/api/users/me", {
+        const response = await fetch("http://localhost:3000/api/users/me", {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
