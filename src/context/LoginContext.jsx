@@ -40,7 +40,7 @@ export function LoginProvider({ children }) {
             const errorData = await response.json().catch(() => ({}));
             throw new Error (errorData.message);
         }
-        return await response.json()
+        return await response.json();
     };
 
 
