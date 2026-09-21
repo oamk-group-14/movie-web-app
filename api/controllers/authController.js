@@ -13,7 +13,7 @@ export const login = async (req, res) => {
         }
 
         const result = await pool.query(
-            'SELECT id, email, password FROM users WHERE email = $1',
+            'SELECT user_id, email, hashed_password FROM users WHERE email = $1',
             [email]
         )
 
@@ -27,7 +27,7 @@ export const login = async (req, res) => {
 
         const passwordMatch = await bcrypt.compare(
             password,
-            user.password
+            user.hashed_password
         )
 
         if (!passwordMatch) {
@@ -38,7 +38,7 @@ export const login = async (req, res) => {
 
         const token = jwt.sign(
             {
-                id: user.id,
+                id: user.user_id,
                 email: user.email
             },
             process.env.JWT_SECRET,
@@ -50,7 +50,7 @@ export const login = async (req, res) => {
         res.json({
             token,
             user: {
-                id: user.id,
+                id: user.user_id,
                 email: user.email
             }
         })
@@ -64,8 +64,6 @@ export const login = async (req, res) => {
     }
 }
 
-import express from 'express';
-import bcrypt from 'bcrypt';
 import { createUser, findUserByEmail } from '../models/user.js';
 
 export const register = async (req, res) => {
