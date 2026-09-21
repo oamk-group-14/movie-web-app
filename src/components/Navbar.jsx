@@ -16,7 +16,8 @@ function Navbar() {
         <Link to='/genres'>Genres</Link>
       </div>
 
-      {/* Login and Sign in links */}
+      {/* Login and Sign in links, visible only when not logged in */}
+      {!user && (
       <div className="auth-links">
         <Link className="sign-in-button" to="/register">
           Sign in
@@ -26,6 +27,7 @@ function Navbar() {
           Login
         </Link>
       </div>
+      )}
 
       {/*Links only visible to logged in users*/}
       {user && (

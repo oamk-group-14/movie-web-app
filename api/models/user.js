@@ -17,4 +17,13 @@ export const createUser = async (email, hashedPassword)=> {
     return result.rows[0];
 };
 
+// Deletes a user by id. Returns the number of deleted rows (0 or 1).
+export const deleteUserById = async (id) => {
+    const result = await pool.query(
+        'DELETE FROM Users WHERE User_ID = $1',
+        [id]
+    );
+    return result.rowCount;
+};
+
 
