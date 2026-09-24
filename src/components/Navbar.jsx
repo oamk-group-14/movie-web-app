@@ -15,16 +15,18 @@ function Navbar() {
         <Link to="/now-showing">Now Showing</Link>
       </div>
 
-      {/* Login and Sign in links */}
+      {/* Login and Sign in links, visible only when not logged in */}
+      {!user && (
       <div className="auth-links">
         <Link className="sign-in-button" to="/register">
-          Sign in
+          Sign up
         </Link>
 
         <Link className="login-button" to="/login">
           Login
         </Link>
       </div>
+      )}
 
       {/*Links only visible to logged in users*/}
       {user && (

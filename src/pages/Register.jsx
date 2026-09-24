@@ -36,7 +36,7 @@ function Register() {
         <div className="auth-page">
             <div className="auth-box">
 
-                <h1>Sign in</h1>
+                <h1>Sign up</h1>
 
                 {/* Registration form */}
                 <form className="auth-form" onSubmit={handleSubmit}>
@@ -71,7 +71,7 @@ function Register() {
                     )}
 
                     <button type="submit" disabled={loading}>
-                        {loading ? 'Creating account...' : 'Sign in'}
+                        {loading ? 'Creating account...' : 'Sign up'}
                     </button>
 
                 </form>

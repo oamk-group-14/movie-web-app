@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { pool } from '../models/db.js'
+import { createUser, findUserByEmail } from '../models/user.js';
 
 export const login = async (req, res) => {
     try {
@@ -13,7 +14,7 @@ export const login = async (req, res) => {
         }
 
         const result = await pool.query(
-            'SELECT id, email, password FROM users WHERE email = $1',
+            'SELECT user_id, email, hashed_password FROM users WHERE email = $1',
             [email]
         )
 
@@ -27,7 +28,7 @@ export const login = async (req, res) => {
 
         const passwordMatch = await bcrypt.compare(
             password,
-            user.password
+            user.hashed_password
         )
 
         if (!passwordMatch) {
@@ -38,7 +39,7 @@ export const login = async (req, res) => {
 
         const token = jwt.sign(
             {
-                id: user.id,
+                id: user.user_id,
                 email: user.email
             },
             process.env.JWT_SECRET,
@@ -50,7 +51,7 @@ export const login = async (req, res) => {
         res.json({
             token,
             user: {
-                id: user.id,
+                id: user.user_id,
                 email: user.email
             }
         })
@@ -64,15 +65,11 @@ export const login = async (req, res) => {
     }
 }
 
-import express from 'express';
-import bcrypt from 'bcrypt';
-import { createUser, findUserByEmail } from '../models/user.js';
-
 export const register = async (req, res) => {
-    const { email, password} = req.body;
+    const { email, password } = req.body;
 
     try {
-        if ( !email || !password){
+        if (!email || !password) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
@@ -85,18 +82,19 @@ export const register = async (req, res) => {
         // Check that the password is at least 8 characters long and uses both numbers and letters
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(password)) {
-            return res.status(400).json({ message: "Password must be at least 8 characters long and it must contain numbers and letters"})
+            return res.status(400).json({ message: "Password must be at least 8 characters long and it must contain numbers and both capital and lowercase letters" })
         }
-    
+
         //Hashes the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         //Creates the new user
         const newUser = await createUser(email, hashedPassword);
-        return res.status(201).json({ message: 'User registered successfully', user: newUser});
-    
+        return res.status(201).json({ message: 'User registered successfully', user: newUser });
+
     } catch (err) {
-        return res.status(500).json({ message: 'Server error'});
+        console.error('Register error:', err);
+        return res.status(500).json({ message: 'Server error' });
     };
 
 }
