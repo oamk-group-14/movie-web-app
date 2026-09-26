@@ -1,10 +1,12 @@
 import { useLogin } from "../context/LoginContext.jsx";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Account() {
     const { user, deleteAccount } = useLogin();
     const [confirming, setConfirming] = useState(false);
     const [error, setError] = useState(null);
+    const navigate = useNavigate()
 
     // Deletes account //NOT TESTED as account creation is not ready yet. Test at the end of the week.
     const handleDelete = async () => {
@@ -22,8 +24,13 @@ function Account() {
             <h1>Account</h1>
             <p>Logged in as {user.email}</p>
 
-            {error && <p className="error">{error}</p>}
+            {/* Navigate to the user's favorite movies and TV shows */}
+            <button onClick={() => navigate('/favorites')}>
+                Favorites
+            </button>
 
+            {error && <p className="error">{error}</p>}
+            
             {!confirming && (
                 <button onClick={() => setConfirming(true)}>Delete account</button>
             )}

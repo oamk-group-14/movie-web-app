@@ -13,14 +13,13 @@ function Navbar() {
         <Link to="/movies">Movies</Link>
         <Link to="/tvshows">TV Shows</Link>
         <Link to="/now-showing">Now Showing</Link>
-        <Link to='/genres'>Genres</Link>
       </div>
 
       {/* Login and Sign in links, visible only when not logged in */}
       {!user && (
       <div className="auth-links">
         <Link className="sign-in-button" to="/register">
-          Sign in
+          Sign up
         </Link>
 
         <Link className="login-button" to="/login">
