@@ -10,6 +10,7 @@ import NowShowing from './pages/NowShowing'
 import Account from './pages/Account'
 import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
+import Favorites from './pages/Favorites.jsx'
 
 
 function App() {
@@ -32,6 +33,13 @@ function App() {
             <Account />
           </ProtectedRoute>
         } />
+
+        <Route path='/favorites' element={
+          <ProtectedRoute>
+            <Favorites />
+          </ProtectedRoute>
+        } />
+        
       </Routes>
     </BrowserRouter>
   )

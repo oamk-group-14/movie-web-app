@@ -10,8 +10,11 @@ function Movies() {
     const [genres, setGenres] = useState([])
     const [showGenres, setShowGenres] = useState(false)
     const [selectedGenre, setSelectedGenre] = useState(null)
+    const [favoriteIds, setFavoriteIds] = useState([])
     const [error, setError] = useState('')
+    
 
+    // Load available movie genres when the page is opened
     useEffect(() => {
         const loadGenres = async () => {
             try {
@@ -29,6 +32,18 @@ function Movies() {
         loadGenres()
     }, [])
 
+    // Add or remove a movie from the favorites list
+    const toggleFavorite = (id) => {
+        setFavoriteIds((currentFavorites) => {
+            if (currentFavorites.includes(id)) {
+                return currentFavorites.filter((favoriteId) => favoriteId !== id)
+            }
+
+            return [...currentFavorites, id]
+        })
+    }
+
+    // Search for movies and actors using the entered search query
     const search = async () => {
         if (!query.trim()) {
             setError('Please enter a movie title or actor name')
@@ -63,6 +78,7 @@ function Movies() {
         }
     }
 
+    // Search for movies belonging to the selected genre
     const searchByGenre = async (genreId) => {
         try {
             setError('')
@@ -85,7 +101,6 @@ function Movies() {
         }
     }
 
-    // Return movie details to frontend
     return (
         <div className="media-page">
             <h1>Movies</h1>
@@ -102,16 +117,17 @@ function Movies() {
                     Search
                 </button>
                 
-                <button className="genre-button" onClick={() => setShowGenres(!showGenres)}>
+                <button className={`genre-button ${showGenres ? 'active' : ''}`} onClick={() => setShowGenres(!showGenres)}>
                     Genres
                 </button>
             </div>
 
+            {/* Show the genre buttons when the genre menu is opened */}
             {showGenres && (
                 <div className="genre-list">
                     {genres.map((genre) => (
                         <button
-                            key={genre.id}
+                            className={selectedGenre === genre.id ? 'active' : ''}
                             onClick={() => searchByGenre(genre.id)}
                         >
                             {genre.name}
@@ -123,6 +139,7 @@ function Movies() {
             {error && <p>{error}</p>}
 
             <MediaGrid>
+                {/* Display movies found through actor searches */}
                 {actors.map((movie) => (
                     <MediaCard
                         key={movie.id}
@@ -136,9 +153,12 @@ function Movies() {
                         date={movie.release_date}
                         rating={movie.vote_average}
                         type="movie"
+                        isFavorite={favoriteIds.includes(movie.id)}
+                        onFavoriteToggle={() => toggleFavorite(movie.id)}
                     />
                 ))}
 
+                {/* Display movies found through movie title or genre searches */}
                 {movies.map((movie) => (
                     <MediaCard
                         key={movie.id}
@@ -152,6 +172,8 @@ function Movies() {
                         date={movie.release_date}
                         rating={movie.vote_average}
                         type="movie"
+                        isFavorite={favoriteIds.includes(movie.id)}
+                        onFavoriteToggle={() => toggleFavorite(movie.id)}
                     />
                 ))}
             </MediaGrid>

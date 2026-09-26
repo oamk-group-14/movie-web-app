@@ -483,11 +483,11 @@ body {
     border-color 0.2s ease;
 }
 
-.genre-button:hover {
+.genre-button:hover,
+.genre-button.active {
   background-color: #3b344b !important;
   border-color: #8254e8 !important;
 }
-
 
 /* =========================
    GENRE LIST
@@ -522,8 +522,18 @@ body {
 }
 
 .genre-list button:hover {
-  background-color: #8254e8;
-  border-color: #8254e8;
+  background-color: #3b344b !important;
+  border-color: #8254e8 !important;
+}
+
+.genre-list button.active {
+  background-color: #8254e8 !important;
+  border-color: #8254e8 !important;
+}
+
+.genre-list button.active:hover {
+  background-color: #b18aff !important;
+  border-color: #b18aff !important;
 }
 
 /* GENRE MENU - TABLET */
@@ -601,16 +611,16 @@ body {
   overflow: hidden;
 }
 
-.media-card p {
+.media-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.media-card-info p {
   margin: 0 12px 12px;
   color: #bcb6c7;
   font-size: 14px;
 }
-
-.media-card a + p {
-  margin-top: 0;
-}
-
 
 /* =========================
    MEDIA CARD - 4 COLUMNS
@@ -640,9 +650,8 @@ body {
   }
 }
 
-
 /* =========================
-   MEDIA CARD - 1 COLUMNS
+   MEDIA CARD - MOBILE
 ========================= */
 
 @media (max-width: 550px) {
@@ -653,14 +662,123 @@ body {
 
   .media-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
+  }
+
+  .media-card-poster {
+    position: relative;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    grid-template-rows: auto;
+    column-gap: 15px;
+    align-items: start;
+  }
+
+  .media-card-poster > a {
+    display: contents;
+  }
+
+  .media-card img {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    width: 110px;
+    height: 165px;
+    object-fit: cover;
   }
 
   .media-card h2 {
+    grid-column: 2;
+    margin: 10px 0 10px;
     font-size: 15px;
   }
 
   .media-card p {
+    grid-column: 2;
+    margin: 0 0 10px;
     font-size: 13px;
   }
+
+}
+
+/* =========================
+   FAVORITES BUTTON
+========================= */
+
+.media-card-poster {
+  position: relative;
+}
+
+.favorite-heart {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(48, 43, 61, 0.95);
+  color: #ffffff;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.favorite-heart.active {
+  background-color: #8254e8;
+  color: #ffffff;
+}
+
+.favorite-heart:hover {  
+  background-color: #5a506a;
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* =========================
+   FAVORITES FILTER BUTTON
+========================= */
+
+.favorites-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.favorites-filter button {
+  padding: 9px 18px;
+  border: 1px solid #5a506a;
+  border-radius: 8px !important;
+  background-color: #302b3d;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: lighter;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.favorites-filter button:hover {
+  background-color: #3b344b;
+  border-color: #8254e8;
+}
+
+.favorites-filter button.active {
+  background-color: #8254e8;
+  border-color: #8254e8;
+}
+
+.favorites-filter button.active:hover {
+  background-color: #b18aff;
+  border-color: #b18aff;
 }

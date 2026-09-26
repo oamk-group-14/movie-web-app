@@ -5,7 +5,21 @@ import MediaGrid from '../components/MediaGrid'
 function NowShowing() {
     const [movies, setMovies] = useState([])
     const [loading, setLoading] = useState(true)
+    const [favoriteIds, setFavoriteIds] = useState([])
     const [error, setError] = useState('')
+
+    // Add or remove a movie from the favorites list
+    const toggleFavorite = (id) => {
+        setFavoriteIds((currentFavorites) => {
+            if (currentFavorites.includes(id)) {
+                return currentFavorites.filter(
+                    (favoriteId) => favoriteId !== id
+                )
+            }
+
+            return [...currentFavorites, id]
+        })
+    }
 
     useEffect(() => {
         let ignore = false
@@ -64,6 +78,8 @@ function NowShowing() {
                         date={movie.year}
                         rating={movie.voteAverage}
                         type="movie"
+                        isFavorite={favoriteIds.includes(movie.id)}
+                        onFavoriteToggle={() => toggleFavorite(movie.id)}
                     />
                 ))}
             </MediaGrid>
