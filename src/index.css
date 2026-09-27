@@ -408,3 +408,377 @@ body {
     width: 100%;
   }
 }
+
+
+/* =========================
+   MEDIA PAGES
+========================= */
+
+.media-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+.media-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.media-search input {
+  width: 300px;
+  padding: 11px 16px;
+  border: 1px solid #5a506a;
+  border-radius: 30px;
+  background-color: #302b3d;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.media-search input::placeholder {
+  color: #aaa4b4;
+}
+
+.media-search input:focus {
+  outline: none;
+  border-color: #8254e8;
+}
+
+.media-search > button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 30px;
+  background-color: #8254e8;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.media-search > button:hover {
+  background-color: #b18aff;
+}
+
+
+/* =========================
+   GENRE BUTTON
+========================= */
+
+.genre-button {
+  padding: 9px 18px !important;
+  border: 1px solid #5a506a !important;
+  border-radius: 8px !important;
+  background-color: #302b3d !important;
+  color: #ffffff !important;
+  font-family: inherit;
+  font-weight: lighter !important;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.genre-button:hover,
+.genre-button.active {
+  background-color: #3b344b !important;
+  border-color: #8254e8 !important;
+}
+
+/* =========================
+   GENRE LIST
+========================= */
+
+.genre-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  max-width: 590px;
+  margin-bottom: 25px;
+  padding: 12px;
+  background-color: #272331;
+  border: 1px solid #4a405a;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.genre-list button {
+  padding: 7px 10px;
+  border: 1px solid #4a405a;
+  border-radius: 6px;
+  background-color: #302b3d;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.genre-list button:hover {
+  background-color: #3b344b !important;
+  border-color: #8254e8 !important;
+}
+
+.genre-list button.active {
+  background-color: #8254e8 !important;
+  border-color: #8254e8 !important;
+}
+
+.genre-list button.active:hover {
+  background-color: #b18aff !important;
+  border-color: #b18aff !important;
+}
+
+/* GENRE MENU - TABLET */
+
+@media (max-width: 900px) {
+  .genre-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* GENRE MENU - MOBILE */
+
+@media (max-width: 600px) {
+  .genre-list {
+    width: 100%;
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  .genre-list button {
+    min-width: 0;
+  }
+}
+
+/* =========================
+   MEDIA GRID
+========================= */
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 24px;
+}
+
+
+/* =========================
+   MEDIA CARD
+========================= */
+
+.media-card {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: #302b3d;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.media-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.media-card a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.media-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+}
+
+.media-card h2 {
+  margin: 12px 12px 6px;
+  font-size: 17px;
+  line-height: 1.3;
+
+  /* Prevent very long titles from making cards different heights */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.media-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.media-card-info p {
+  margin: 0 12px 12px;
+  color: #bcb6c7;
+  font-size: 14px;
+}
+
+/* =========================
+   MEDIA CARD - 4 COLUMNS
+========================= */
+
+@media (max-width: 1100px) {
+
+  .media-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================
+   MEDIA CARD - 3 COLUMNS
+========================= */
+
+@media (max-width: 800px) {
+
+  .media-page {
+    padding: 25px 20px;
+  }
+
+  .media-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+/* =========================
+   MEDIA CARD - MOBILE
+========================= */
+
+@media (max-width: 550px) {
+
+  .media-page {
+    padding: 20px 15px;
+  }
+
+  .media-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .media-card-poster {
+    position: relative;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    grid-template-rows: auto;
+    column-gap: 15px;
+    align-items: start;
+  }
+
+  .media-card-poster > a {
+    display: contents;
+  }
+
+  .media-card img {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    width: 110px;
+    height: 165px;
+    object-fit: cover;
+  }
+
+  .media-card h2 {
+    grid-column: 2;
+    margin: 10px 0 10px;
+    font-size: 15px;
+  }
+
+  .media-card p {
+    grid-column: 2;
+    margin: 0 0 10px;
+    font-size: 13px;
+  }
+
+}
+
+/* =========================
+   FAVORITES BUTTON
+========================= */
+
+.media-card-poster {
+  position: relative;
+}
+
+.favorite-heart {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(48, 43, 61, 0.95);
+  color: #ffffff;
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.favorite-heart.active {
+  background-color: #8254e8;
+  color: #ffffff;
+}
+
+.favorite-heart:hover {  
+  background-color: #5a506a;
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* =========================
+   FAVORITES FILTER BUTTON
+========================= */
+
+.favorites-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.favorites-filter button {
+  padding: 9px 18px;
+  border: 1px solid #5a506a;
+  border-radius: 8px !important;
+  background-color: #302b3d;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: lighter;
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.favorites-filter button:hover {
+  background-color: #3b344b;
+  border-color: #8254e8;
+}
+
+.favorites-filter button.active {
+  background-color: #8254e8;
+  border-color: #8254e8;
+}
+
+.favorites-filter button.active:hover {
+  background-color: #b18aff;
+  border-color: #b18aff;
+}
