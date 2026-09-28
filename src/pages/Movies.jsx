@@ -99,6 +99,7 @@ function Movies() {
 
                         <p>{movie.release_date}</p>
                         <p>{movie.vote_average}</p>
+                    
                     </div>
                 ))}
             </div>

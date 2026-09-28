@@ -408,3 +408,19 @@ body {
     width: 100%;
   }
 }
+
+/* REVIEW */
+
+.review {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}

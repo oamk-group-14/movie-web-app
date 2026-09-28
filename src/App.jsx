@@ -11,7 +11,7 @@ import NowShowing from './pages/NowShowing'
 import Account from './pages/Account'
 import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
-
+import SubmitReview from './pages/Review.jsx'
 
 function App() {
   return (
@@ -27,6 +27,8 @@ function App() {
         <Route path='/genres' element={<Genres />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/movies/:movieId/review' element={<SubmitReview />} />
+
 
         {/*Pages visible to only logged in users should be wrapped like this.*/}
         <Route path='/account' element={

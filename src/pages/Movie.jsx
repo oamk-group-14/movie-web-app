@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 function Movie() {
     // Get movie ID from the URL
@@ -67,7 +67,20 @@ function Movie() {
             <p>Release Date: {movie.release_date}</p>
             <p>Genres: {movie.genres.map((genre) => genre.name).join(', ')}</p>
             <p>Runtime: {movie.runtime}</p>
-            <p>Vote Average: {movie.vote_average}</p>
+            <p>Vote Average: {movie.vote_average}</p>  
+
+            <Link to={`/movies/${id}/review`}>
+            <button> Add Review </button>
+            </Link>
+
+            <div>
+                <h1> Reviews</h1>
+
+                <div></div>
+
+            </div>
+                    
+
         </div>
     )
 }
