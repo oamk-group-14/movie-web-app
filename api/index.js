@@ -8,6 +8,7 @@ import tvShowRouter from './routes/tvShowRouter.js'
 import genreRouter from './routes/genreRouter.js'
 import authRouter from './routes/authRouter.js'
 import userRouter from './routes/userRouter.js'
+import favoriteRouter from './routes/favoriteRouter.js'
 
 
 const port = process.env.PORT || 3000
@@ -24,6 +25,7 @@ app.use('/api/tvshows', tvShowRouter);
 app.use('/api', genreRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
+app.use('/api/favorites', favoriteRouter)
 
 
 
