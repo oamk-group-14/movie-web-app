@@ -10,6 +10,7 @@ function Group() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(0);
+  const [movies, setMovies] = useState([]);
 
   useEffect(() => {
     const fetchGroup = async () => {
@@ -29,6 +30,22 @@ function Group() {
         }
 
         setGroup(data);
+
+        // Only members can see the group's movies
+        if (data.isMember) {
+          const moviesResponse = await fetch(`http://localhost:3000/groups/${id}/movies`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const moviesData = await moviesResponse.json();
+
+          if (!moviesResponse.ok) {
+            throw new Error(moviesData.error || 'Failed to fetch group movies');
+          }
+
+          setMovies(moviesData);
+        } else {
+          setMovies([]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -134,6 +151,30 @@ function Group() {
     }
   };
 
+  const handleRemoveMovie = async (movieId) => {
+    if (!window.confirm('Remove this movie from the group?')) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `http://localhost:3000/groups/${id}/movies/${movieId}`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to remove movie');
+      }
+
+      setMovies((prev) => prev.filter((m) => m.movie_id !== movieId));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   if (loading) return <p>Loading group...</p>;
   if (error) return <p>{error}</p>;
 
@@ -141,6 +182,21 @@ function Group() {
     <div>
       <h1>{group.group_name}</h1>
       <p>Owner: {group.owner_email}</p>
+
+      {group.isOwner && group.pendingRequests?.length > 0 && (
+        <>
+          <h2>Pending requests</h2>
+          <ul>
+            {group.pendingRequests.map((request) => (
+              <li key={request.user_id}>
+                {request.email}
+                <button onClick={() => handleRequest(request.user_id, 'accept')}>Accept</button>
+                <button onClick={() => handleRequest(request.user_id, 'reject')}>Reject</button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       {group.isMember ? (
         <>
@@ -159,20 +215,40 @@ function Group() {
               </li>
             ))}
           </ul>
-          {group.isOwner && group.pendingRequests?.length > 0 && (
-            <>
-              <h2>Pending requests</h2>
-              <ul>
-                {group.pendingRequests.map((request) => (
-                  <li key={request.user_id}>
-                    {request.email}
-                    <button onClick={() => handleRequest(request.user_id, 'accept')}>Accept</button>
-                    <button onClick={() => handleRequest(request.user_id, 'reject')}>Reject</button>
-                  </li>
-                ))}
-              </ul>
-            </>
+
+          <h2>Movies</h2>
+          {movies.length === 0 ? (
+            <p>No movies yet. Add one from the search page.</p>
+          ) : (
+            <div className="media-grid">
+              {movies.map((movie) => (
+                <div className="media-card" key={movie.movie_id}>
+                  <div className="media-card-poster">
+                    {movie.poster_path && (
+                      <img
+                        src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`}
+                        alt={movie.title}
+                      />
+                    )}
+                    <h2>{movie.title}</h2>
+                    <p className="group-movie-meta">
+                      Added by {movie.added_by_email ?? 'deleted user'}
+                    </p>
+
+                    {(group.isOwner || movie.added_by === user.id) && (
+                      <button
+                        className="group-movie-remove"
+                        onClick={() => handleRemoveMovie(movie.movie_id)}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
+
           {group.isOwner && (
             <button onClick={handleDelete}>Delete group</button>
           )}

@@ -154,4 +154,63 @@ const removeMember = async (groupId, userId) => {
   return result.rowCount > 0;
 };
 
-export { createGroup, getAllGroups, getGroupById, isGroupMember, getGroupMembers, deleteGroup, requestMembership, getPendingRequests, acceptMembership, rejectMembership, getMembership, removeMember };
+// Get groups where user is an accepted member
+const getGroupsForMember = async (userId) => {
+  const result = await pool.query(
+    `SELECT g.group_id, g.group_name
+     FROM Groups g
+     JOIN Group_Members gm ON gm.group_id = g.group_id
+     WHERE gm.user_id = $1 AND gm.status = 'accepted'
+     ORDER BY g.group_name`,
+    [userId]
+  );
+  return result.rows;
+};
+
+// Get movies added to a group, newest first
+const getGroupMovies = async (groupId) => {
+  const result = await pool.query(
+    `SELECT gm.movie_id, gm.title, gm.poster_path, gm.added_at,
+            gm.added_by, u.email AS added_by_email
+     FROM Group_Movies gm
+     LEFT JOIN Users u ON u.user_id = gm.added_by
+     WHERE gm.group_id = $1
+     ORDER BY gm.added_at DESC`,
+    [groupId]
+  );
+  return result.rows;
+};
+
+// Add a movie to a group
+const addGroupMovie = async (groupId, movieId, title, posterPath, userId) => {
+  const result = await pool.query(
+    `INSERT INTO Group_Movies (group_id, movie_id, title, poster_path, added_by)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING movie_id, title, poster_path, added_at, added_by`,
+    [groupId, movieId, title, posterPath, userId]
+  );
+  return result.rows[0];
+};
+
+// Remove a movie from a group
+const removeGroupMovie = async (groupId, movieId) => {
+  const result = await pool.query(
+    `DELETE FROM Group_Movies
+     WHERE group_id = $1 AND movie_id = $2`,
+    [groupId, movieId]
+  );
+  return result.rowCount > 0;
+};
+
+// Is movie in the group and who can delete it
+const getGroupMovie = async (groupId, movieId) => {
+  const result = await pool.query(
+    `SELECT added_by
+     FROM Group_Movies
+     WHERE group_id = $1 AND movie_id = $2`,
+    [groupId, movieId]
+  );
+  return result.rows[0];
+};
+
+export { createGroup, getAllGroups, getGroupById, isGroupMember, getGroupMembers, deleteGroup, requestMembership, getPendingRequests, acceptMembership, rejectMembership, getMembership, removeMember, getGroupsForMember, getGroupMovies, addGroupMovie, getGroupMovie, removeGroupMovie };
