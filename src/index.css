@@ -782,3 +782,102 @@ body {
   background-color: #b18aff;
   border-color: #b18aff;
 }
+
+/* =========================
+   GROUP PAGE - MOVIES
+========================= */
+
+.group-movie-meta {
+  margin: 0 12px 10px;
+  color: #bcb6c7;
+  font-size: 14px;
+}
+
+.group-movie-remove {
+  margin: 0 12px 12px;
+  padding: 7px 14px;
+  border: 1px solid #b20101;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #ff8f8f;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.group-movie-remove:hover {
+  background-color: #b20101;
+  color: #ffffff;
+}
+
+
+/* =========================
+   ADD TO GROUP
+========================= */
+
+.add-to-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 12px 12px;
+}
+
+.add-to-group select {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid #5a506a;
+  border-radius: 8px;
+  background-color: #272331;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.add-to-group select:focus {
+  outline: none;
+  border-color: #8254e8;
+}
+
+.add-to-group button {
+  padding: 7px 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #8254e8;
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.add-to-group button:hover:not(:disabled) {
+  background-color: #b18aff;
+}
+
+.add-to-group button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-to-group-message {
+  width: 100%;
+  color: #bcb6c7;
+  font-size: 12px;
+}
+
+
+/* GROUP MOVIES + ADD TO GROUP - MOBILE */
+
+@media (max-width: 550px) {
+
+  .group-movie-meta,
+  .group-movie-remove,
+  .add-to-group {
+    grid-column: 2;
+    justify-self: start;
+    margin: 0 0 10px;
+  }
+}

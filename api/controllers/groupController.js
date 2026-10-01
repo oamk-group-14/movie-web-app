@@ -1,4 +1,4 @@
-import { createGroup, getAllGroups, getGroupById, isGroupMember, getGroupMembers, deleteGroup, requestMembership, getPendingRequests, acceptMembership, rejectMembership, getMembership, removeMember } from '../models/group.js';
+import { createGroup, getAllGroups, getGroupById, getGroupMembers, deleteGroup, requestMembership, getPendingRequests, acceptMembership, rejectMembership, getMembership, removeMember, getGroupsForMember, getGroupMovies, addGroupMovie, getGroupMovie, removeGroupMovie } from '../models/group.js';
 
 // Creates a new group (requires login)
 const postGroup = async (req, res) => {
@@ -216,4 +216,114 @@ const removeGroupMember = async (req, res) => {
     }
 };
 
-export { postGroup, getGroups, getGroup, removeGroup, postJoinRequest, handleJoinRequest, removeGroupMember };
+// Lists groups where the logged-in user is an accepted member
+const getMyGroups = async (req, res) => {
+    try {
+        const groups = await getGroupsForMember(req.user.id);
+        return res.status(200).json(groups);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Failed to fetch your groups' });
+    }
+};
+
+// Lists movies added to a group (members only)
+const getMoviesOfGroup = async (req, res) => {
+    const groupId = Number(req.params.id);
+
+    if (!Number.isInteger(groupId)) {
+        return res.status(400).json({ error: 'Invalid group id' });
+    }
+
+    try {
+        const group = await getGroupById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+        if (!(await isGroupMember(groupId, req.user.id))) {
+            return res.status(403).json({ error: 'Only group members can view group movies' });
+        }
+
+        const movies = await getGroupMovies(groupId);
+        return res.status(200).json(movies);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Failed to fetch group movies' });
+    }
+};
+
+// Adds a searched movie to a group (members only)
+const postGroupMovie = async (req, res) => {
+    const groupId = Number(req.params.id);
+    const { movieId, posterPath } = req.body;
+    const title = req.body.title?.trim();
+
+    if (!Number.isInteger(groupId)) {
+        return res.status(400).json({ error: 'Invalid group id' });
+    }
+    if (!Number.isInteger(movieId)) {
+        return res.status(400).json({ error: 'movieId must be an integer' });
+    }
+    if (!title) {
+        return res.status(400).json({ error: 'Movie title is required' });
+    }
+    if (title.length > 255) {
+        return res.status(400).json({ error: "Movie title can't be more than 255 characters" });
+    }
+
+    try {
+        const group = await getGroupById(groupId);
+
+        if (!group) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+        if (!(await isGroupMember(groupId, req.user.id))) {
+            return res.status(403).json({ error: 'Only group members can add movies' });
+        }
+
+        const movie = await addGroupMovie(groupId, movieId, title, posterPath ?? null, req.user.id);
+        return res.status(201).json(movie);
+    } catch (error) {
+        if (error.code === '23505') {
+            return res.status(409).json({ error: 'This movie is already in the group' });
+        }
+        console.error(error);
+        return res.status(500).json({ error: 'Failed to add movie to group' });
+    }
+};
+
+// Removes a movie from a group (the member who added it, or the owner can do this)
+const removeMovieFromGroup = async (req, res) => {
+    const groupId = Number(req.params.id);
+    const movieId = Number(req.params.movieId);
+    const userId = req.user.id;
+
+    if (!Number.isInteger(groupId) || !Number.isInteger(movieId)) {
+        return res.status(400).json({ error: 'Invalid id' });
+    }
+
+    try {
+        const movie = await getGroupMovie(groupId, movieId);
+
+        if (!movie) {
+            return res.status(404).json({ error: 'Movie not found in this group' });
+        }
+
+        const group = await getGroupById(groupId);
+        const isOwner = group.owner_id === userId;
+        const isAdder = movie.added_by === userId;
+
+        if (!isOwner && !isAdder) {
+            return res.status(403).json({ error: 'Only the owner or the member who added the movie can remove it' });
+        }
+
+        await removeGroupMovie(groupId, movieId);
+        return res.status(204).send();
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Failed to remove movie from group' });
+    }
+};
+
+export { postGroup, getGroups, getGroup, removeGroup, postJoinRequest, handleJoinRequest, removeGroupMember, getMyGroups, getMoviesOfGroup, postGroupMovie, removeMovieFromGroup };

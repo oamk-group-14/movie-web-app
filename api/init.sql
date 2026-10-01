@@ -40,8 +40,11 @@ CREATE TABLE Group_Members (
 CREATE TABLE Group_Movies (
     group_id INT REFERENCES Groups(group_id) ON DELETE CASCADE,
     movie_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    poster_path VARCHAR(255),
+    added_by INT REFERENCES Users(user_id) ON DELETE SET NULL,
     added_at TIMESTAMP DEFAULT NOW(),
-      PRIMARY KEY (group_id, movie_id)
+    PRIMARY KEY (group_id, movie_id)
 );
 
 CREATE TABLE Reviews (

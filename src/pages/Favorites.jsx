@@ -40,7 +40,7 @@ function Favorites() {
     const removeFavorite = async (id, type) => {
         try {
             const response = await fetch(
-                'http://loaclhost:3000/api/favorites/${type}/${id}', {
+                'http://localhost:3000/api/favorites/${type}/${id}', {
                     method: 'DELETE',
                     credentials: 'include'
                 }
