@@ -11,6 +11,9 @@ import Account from './pages/Account'
 import Register from './pages/Register.jsx'
 import Login from './pages/Login.jsx'
 import Favorites from './pages/Favorites.jsx'
+import Groups from './pages/Groups.jsx'
+import NewGroup from './pages/NewGroup.jsx'
+import Group from './pages/Group.jsx'
 
 
 function App() {
@@ -26,6 +29,9 @@ function App() {
         <Route path='/now-showing' element={<NowShowing />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
+        <Route path="/groups" element={<Groups />} />
+        <Route path="/groups/:id" element={<Group />} />
+
 
         {/*Pages visible to only logged in users should be wrapped like this.*/}
         <Route path='/account' element={
@@ -39,7 +45,13 @@ function App() {
             <Favorites />
           </ProtectedRoute>
         } />
-        
+
+        <Route path="/groups/new" element={
+          <ProtectedRoute>
+            <NewGroup />
+          </ProtectedRoute>
+        } />
+
       </Routes>
     </BrowserRouter>
   )
