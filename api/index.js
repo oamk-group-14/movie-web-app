@@ -8,6 +8,7 @@ import tvShowRouter from './routes/tvShowRouter.js'
 import authRouter from './routes/authRouter.js'
 import userRouter from './routes/userRouter.js'
 import groupRouter from './routes/groupRouter.js';
+import recommendRouter from './routes/recommendRouter.js'
 
 const port = process.env.PORT || 3000
 
@@ -27,6 +28,7 @@ app.use('/api/tvshows', tvShowRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/groups', groupRouter);
+app.use('/api/recommendations', recommendRouter)
 
 // Health check endpoint for database connectivity
 app.get('/api/health', async (req, res) => {
