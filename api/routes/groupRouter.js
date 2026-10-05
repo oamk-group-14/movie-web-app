@@ -35,7 +35,7 @@ router.get('/:id/movies', authenticateToken, getMoviesOfGroup);
 // Adds a movie to the group (members only)
 router.post('/:id/movies', authenticateToken, postGroupMovie);
 
-// Removes a movie from the group (the member who added it, or the owner)
-router.delete('/:id/movies/:movieId', authenticateToken, removeMovieFromGroup);
+// Removes a movie or TV show from the group (the member who added it, or the owner)
+router.delete('/:id/movies/:mediaType/:movieId', authenticateToken, removeMovieFromGroup);
 
 export default router;

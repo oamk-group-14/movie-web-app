@@ -1,4 +1,6 @@
-import { createGroup, getAllGroups, getGroupById, getGroupMembers, deleteGroup, requestMembership, getPendingRequests, acceptMembership, rejectMembership, getMembership, removeMember, getGroupsForMember, getGroupMovies, addGroupMovie, getGroupMovie, removeGroupMovie } from '../models/group.js';
+import { createGroup, getAllGroups, getGroupById, getGroupMembers, deleteGroup, requestMembership, getPendingRequests, acceptMembership, rejectMembership, getMembership, removeMember, getGroupsForMember, getGroupMovies, addGroupMovie, getGroupMovie, removeGroupMovie, isGroupMember } from '../models/group.js';
+
+const MEDIA_TYPES = ['movie', 'tv'];
 
 // Creates a new group (requires login)
 const postGroup = async (req, res) => {
@@ -253,10 +255,10 @@ const getMoviesOfGroup = async (req, res) => {
     }
 };
 
-// Adds a searched movie to a group (members only)
+// Adds a searched movie or TV show to a group (members only)
 const postGroupMovie = async (req, res) => {
     const groupId = Number(req.params.id);
-    const { movieId, posterPath } = req.body;
+    const { movieId, mediaType, posterPath } = req.body;
     const title = req.body.title?.trim();
 
     if (!Number.isInteger(groupId)) {
@@ -265,11 +267,14 @@ const postGroupMovie = async (req, res) => {
     if (!Number.isInteger(movieId)) {
         return res.status(400).json({ error: 'movieId must be an integer' });
     }
+    if (!MEDIA_TYPES.includes(mediaType)) {
+        return res.status(400).json({ error: "mediaType must be 'movie' or 'tv'" });
+    }
     if (!title) {
-        return res.status(400).json({ error: 'Movie title is required' });
+        return res.status(400).json({ error: 'Title is required' });
     }
     if (title.length > 255) {
-        return res.status(400).json({ error: "Movie title can't be more than 255 characters" });
+        return res.status(400).json({ error: "Title can't be more than 255 characters" });
     }
 
     try {
@@ -282,29 +287,33 @@ const postGroupMovie = async (req, res) => {
             return res.status(403).json({ error: 'Only group members can add movies' });
         }
 
-        const movie = await addGroupMovie(groupId, movieId, title, posterPath ?? null, req.user.id);
+        const movie = await addGroupMovie(groupId, movieId, mediaType, title, posterPath ?? null, req.user.id);
         return res.status(201).json(movie);
     } catch (error) {
         if (error.code === '23505') {
-            return res.status(409).json({ error: 'This movie is already in the group' });
+            return res.status(409).json({ error: 'This title is already in the group' });
         }
         console.error(error);
         return res.status(500).json({ error: 'Failed to add movie to group' });
     }
 };
 
-// Removes a movie from a group (the member who added it, or the owner can do this)
+// Removes a movie or TV show from a group (the member who added it, or the owner)
 const removeMovieFromGroup = async (req, res) => {
     const groupId = Number(req.params.id);
     const movieId = Number(req.params.movieId);
+    const { mediaType } = req.params;
     const userId = req.user.id;
 
     if (!Number.isInteger(groupId) || !Number.isInteger(movieId)) {
         return res.status(400).json({ error: 'Invalid id' });
     }
+    if (!MEDIA_TYPES.includes(mediaType)) {
+        return res.status(400).json({ error: "mediaType must be 'movie' or 'tv'" });
+    }
 
     try {
-        const movie = await getGroupMovie(groupId, movieId);
+        const movie = await getGroupMovie(groupId, mediaType, movieId);
 
         if (!movie) {
             return res.status(404).json({ error: 'Movie not found in this group' });
@@ -318,7 +327,7 @@ const removeMovieFromGroup = async (req, res) => {
             return res.status(403).json({ error: 'Only the owner or the member who added the movie can remove it' });
         }
 
-        await removeGroupMovie(groupId, movieId);
+        await removeGroupMovie(groupId, mediaType, movieId);
         return res.status(204).send();
     } catch (error) {
         console.error(error);

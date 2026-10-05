@@ -169,7 +169,9 @@ function Group() {
         throw new Error(data.error || 'Failed to remove movie');
       }
 
-      setMovies((prev) => prev.filter((m) => m.movie_id !== movieId));
+      setMovies((prev) =>
+        prev.filter((m) => !(m.media_type === mediaType && m.movie_id === movieId))
+      );
     } catch (err) {
       setError(err.message);
     }
@@ -216,13 +218,13 @@ function Group() {
             ))}
           </ul>
 
-          <h2>Movies</h2>
+          <h2>Movies & TV shows</h2>
           {movies.length === 0 ? (
             <p>No movies yet. Add one from the search page.</p>
           ) : (
             <div className="media-grid">
               {movies.map((movie) => (
-                <div className="media-card" key={movie.movie_id}>
+                <div className="media-card" key={`${movie.media_type}-${movie.movie_id}`}>
                   <div className="media-card-poster">
                     {movie.poster_path && (
                       <img
@@ -238,7 +240,7 @@ function Group() {
                     {(group.isOwner || movie.added_by === user.id) && (
                       <button
                         className="group-movie-remove"
-                        onClick={() => handleRemoveMovie(movie.movie_id)}
+                        onClick={() => handleRemoveMovie(movie.media_type, movie.movie_id)}
                       >
                         Remove
                       </button>
