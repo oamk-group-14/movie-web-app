@@ -14,6 +14,7 @@ import Favorites from './pages/Favorites.jsx'
 import Groups from './pages/Groups.jsx'
 import NewGroup from './pages/NewGroup.jsx'
 import Group from './pages/Group.jsx'
+import SubmitReview from './pages/Review.jsx'
 
 
 function App() {
@@ -31,6 +32,8 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path="/groups" element={<Groups />} />
         <Route path="/groups/:id" element={<Group />} />
+        <Route path='/movies/:movieId/review' element={<SubmitReview />} />
+        
 
 
         {/*Pages visible to only logged in users should be wrapped like this.*/}

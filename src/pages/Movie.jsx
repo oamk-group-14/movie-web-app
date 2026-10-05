@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import ReviewsList from './ReviewList.jsx';
 
 function Movie() {
     // Get movie ID from the URL
@@ -68,7 +69,22 @@ function Movie() {
             <p>Genres: {movie.genres.map((genre) => genre.name).join(', ')}</p>
             <p>Runtime: {movie.runtime}</p>
             <p>Vote Average: {movie.vote_average}</p>
+
+              <Link to={`/movies/${id}/review`}>
+            <button> Add Review </button>
+            </Link>
+
+            <div>
+
+                <ReviewsList movieId={id} mediaType='movie'/>
+
+                <div></div>
+
+            </div>
+                    
         </div>
+
+        
     )
 }
 
