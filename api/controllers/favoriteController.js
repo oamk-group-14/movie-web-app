@@ -4,21 +4,55 @@ import {
     getFavorites
 } from '../models/favorite.js'
 
-export const addMovieToFavorites = async (req, res) => {
+export const addToFavorites = async (req, res) => {
     try {
         const userId = req.user.id
-        const { movieId } = req.body
 
-        if (!movieId) {
+        const {
+            mediaId,
+            mediaType,
+            title,
+            posterPath,
+            releaseYear,
+            voteAverage
+        } = req.body
+
+        if (!mediaId) {
             return res.status(400).json({
-                error: 'Movie ID is required'
+                error: 'Movie or TV show ID is required'
             })
         }
 
-        const favorite = await addFavorite(userId, movieId)
+        if (!mediaType || !['movie', 'tv'].includes(mediaType)) {
+            return res.status(400).json({
+                error: 'mediaType must be movie or tv'
+            })
+        }
+
+        if (!title) {
+            return res.status(400).json({
+                error: 'Title is required'
+            })
+        }
+
+        const favorite = await addFavorite(
+            userId,
+            mediaId,
+            mediaType,
+            title,
+            posterPath,
+            releaseYear,
+            voteAverage
+        )
+
+        if (!favorite) {
+            return res.status(409).json({
+                error: 'Item is already in favorites'
+            })
+        }
 
         res.status(201).json({
-            message: 'Movie added to favorites',
+            message: 'Added to favorites',
             favorite
         })
 
@@ -26,33 +60,43 @@ export const addMovieToFavorites = async (req, res) => {
         console.error('Error adding favorite:', error)
 
         res.status(500).json({
-            error: 'Failed to add movie to favorites'
+            error: 'Failed to add to favorites'
         })
     }
 }
 
-export const removeMovieFromFavorites = async (req, res) => {
+export const removeFromFavorites = async (req, res) => {
     try {
         const userId = req.user.id
-        const movieId = req.params.movieId
+        const { mediaType, mediaId } = req.params
 
-        const favorite = await removeFavorite(userId, movieId)
+        if (!['movie', 'tv'].includes(mediaType)) {
+            return res.status(400).json({
+                error: 'mediaType must be movie or tv'
+            })
+        }
+
+        const favorite = await removeFavorite(
+            userId,
+            mediaId,
+            mediaType
+        )
 
         if (!favorite) {
             return res.status(404).json({
-                error: 'Movie is not in favorites'
+                error: 'Item is not in favorites'
             })
         }
 
         res.json({
-            message: 'Movie removed from favorites'
+            message: 'Removed from favorites'
         })
 
     } catch (error) {
         console.error('Error removing favorite:', error)
 
         res.status(500).json({
-            error: 'Failed to remove movie from favorites'
+            error: 'Failed to remove from favorites'
         })
     }
 }
