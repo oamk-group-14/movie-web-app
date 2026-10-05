@@ -13,20 +13,20 @@ function Navbar() {
         <Link to="/movies">Movies</Link>
         <Link to="/tvshows">TV Shows</Link>
         <Link to="/now-showing">Now Showing</Link>
-        <Link to='/genres'>Genres</Link>
+        <Link to="/groups">Groups</Link>
       </div>
 
       {/* Login and Sign in links, visible only when not logged in */}
       {!user && (
-      <div className="auth-links">
-        <Link className="sign-in-button" to="/register">
-          Sign in
-        </Link>
+        <div className="auth-links">
+          <Link className="sign-in-button" to="/register">
+            Sign up
+          </Link>
 
-        <Link className="login-button" to="/login">
-          Login
-        </Link>
-      </div>
+          <Link className="login-button" to="/login">
+            Login
+          </Link>
+        </div>
       )}
 
       {/*Links only visible to logged in users*/}
@@ -62,7 +62,7 @@ function Navbar() {
 
         </div>
       )}
-      
+
 
 
       {/* Hamburger menu mobile + tablet */}
@@ -86,6 +86,10 @@ function Navbar() {
 
           <Link to="/now-showing" onClick={() => setMenuOpen(false)}>
             Now Showing
+          </Link>
+
+          <Link to="/groups" onClick={() => setMenuOpen(false)}>
+            Groups
           </Link>
 
           {/*Links only visible to logged in users*/}

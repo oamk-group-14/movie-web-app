@@ -5,29 +5,33 @@ import errorHandler from './middleware/errorHandler.js'
 import testRouter from './routes/testRouter.js'
 import movieRouter from './routes/movieRouter.js'
 import tvShowRouter from './routes/tvShowRouter.js'
-import genreRouter from './routes/genreRouter.js'
 import authRouter from './routes/authRouter.js'
 import userRouter from './routes/userRouter.js'
 import favoriteRouter from './routes/favoriteRouter.js'
 
+import groupRouter from './routes/groupRouter.js';
 
 const port = process.env.PORT || 3000
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/', testRouter);
 app.use('/api/movies', movieRouter);
 app.use('/api/tvshows', tvShowRouter);
-app.use('/api', genreRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/favorites', favoriteRouter)
 
 
+app.use('/groups', groupRouter);
 
 // Health check endpoint for database connectivity
 app.get('/api/health', async (req, res) => {
