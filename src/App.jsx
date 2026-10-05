@@ -33,6 +33,7 @@ function App() {
         <Route path="/groups" element={<Groups />} />
         <Route path="/groups/:id" element={<Group />} />
         <Route path='/movies/:movieId/review' element={<SubmitReview />} />
+        <Route path='/tvshows/:id/review' element={<SubmitReview />} />
         
 
 

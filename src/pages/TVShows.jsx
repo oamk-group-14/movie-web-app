@@ -154,8 +154,8 @@ function TVShows() {
                         date={tvshow.release_date}
                         rating={tvshow.vote_average}
                         type="tv"
-                        isFavorite={favoriteIds.includes(movie.id)}
-                        onFavoriteToggle={() => toggleFavorite(movie.id)}
+                        isFavorite={favoriteIds.includes(tvshow.id)}
+                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}
                     />
                 ))}
 
@@ -173,8 +173,8 @@ function TVShows() {
                         date={tvshow.first_air_date}
                         rating={tvshow.vote_average}
                         type="tv"
-                        isFavorite={favoriteIds.includes(movie.id)}
-                        onFavoriteToggle={() => toggleFavorite(movie.id)}   
+                        isFavorite={favoriteIds.includes(tvshow.id)}
+                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}   
                     />
                 ))}
             </MediaGrid>

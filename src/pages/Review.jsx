@@ -12,7 +12,8 @@ function SubmitReview (){
     };
 
     const stars = Array(5).fill(0);    
-    const { movieId } = useParams();
+    const { id, movieId } = useParams();
+    const currentId = id || movieId;
     const navigate = useNavigate();
     const location = useLocation();
     
@@ -20,7 +21,7 @@ function SubmitReview (){
     const [review, setReview] = useState('');
     const [hoverValue, setHoverValue] = useState(0);
 
-    const movieTitle = location.state?.movieTitle || "Movie";
+    const displayTitle = location.state?.movieTitle || location.state?.tvshowName || "Title";
     const mediaType = location.state?.mediaType || "movie";
     const { user } = useLogin();
     const userId = user?.id || 1;
@@ -49,7 +50,7 @@ function SubmitReview (){
 
         try {
 
-            const response = await fetch(`http://localhost:3000/api/reviews/user/${userId}/movie/${movieId}/title/${movieTitle}/${mediaType}`,{
+            const response = await fetch(`http://localhost:3000/api/reviews/user/${userId}/movie/${currentId}/title/${displayTitle}/${mediaType}`,{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -66,7 +67,10 @@ function SubmitReview (){
         setReview('');
 
         //Siirtyy takaisin elokuvan sivulle
-        navigate(`/movies/${movieId}`);
+        if(mediaType === 'tv') {
+            navigate(`/tvshows/${currentId}`);
+        } else {
+        navigate(`/movies/${currentId}`);}
          
 
 } catch (err) {

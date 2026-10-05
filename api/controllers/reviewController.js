@@ -1,4 +1,3 @@
-import { pool } from "../models/db.js";
 import { createReview, getAllReviews, getReviewsByMedia } from "../models/review.js";
 
 // Create review

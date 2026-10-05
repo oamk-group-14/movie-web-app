@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import ReviewsList from './ReviewList.jsx';
 
 function TVShow() {
     const {id} = useParams();
@@ -65,7 +66,21 @@ function TVShow() {
             <p>First Air Date: {tvshow.first_air_date}</p>
             <p>Genres: {tvshow.genres.map((genre) => genre.name).join(', ')}</p>
             <p>Vote Average: {tvshow.vote_average}</p>
+
+            <Link to={`/tvshows/${id}/review`} state={{ tvshowName: tvshow.name, mediaType: 'tv'}}>
+            <button> Add Review </button>
+            </Link>
+
+            <div>
+
+                <ReviewsList mediaType='tv'/>
+
+            </div>
+
+
         </div>
+
+        
     )
 }
 

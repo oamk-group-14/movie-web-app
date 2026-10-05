@@ -4,7 +4,8 @@ import { useParams } from "react-router-dom";
 
 function ReviewsList ({mediaType = "movie"}) {
 
-    const { id: movieId } = useParams();
+    const { id, movieId } = useParams();
+    const currentId = id || movieId;
     const starColors = { orange: "#FFBA5A", grey: "#a9a9a9" };
     const [reviews, setReviews] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -15,7 +16,7 @@ function ReviewsList ({mediaType = "movie"}) {
                 setIsLoading(true);
 
                 //Fetch reviews from the database
-            const response = await fetch(`http://localhost:3000/api/reviews/media/${movieId}/type/${mediaType}`);
+            const response = await fetch(`http://localhost:3000/api/reviews/media/${currentId}/type/${mediaType}`);
             const reviewData = await response.json();
             
             if(response.ok) {
@@ -26,10 +27,10 @@ function ReviewsList ({mediaType = "movie"}) {
 } finally {
     setIsLoading(false);}
 };
-if (movieId) {
+if (currentId) {
     fetchReviews();
 }
-}, [movieId, mediaType]);
+}, [currentId, mediaType]);
 
 if (isLoading){
     return <p> Loading reviews...</p>;
