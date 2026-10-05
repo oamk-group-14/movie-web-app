@@ -1,41 +1,32 @@
-import { useEffect, useState } from 'react';
-import { useLogin } from '../context/LoginContext';
+import { useState } from 'react';
 
-export default function AddToGroup({ movie }) {
-  const { user } = useLogin();
-  const [groups, setGroups] = useState([]);
+export default function AddToGroup({ groups, movieId, mediaType, title, posterPath }) {
   const [groupId, setGroupId] = useState('');
   const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    if (!user) return;
-    fetch('/api/groups/mine', {
-      headers: { Authorization: `Bearer ${user.token}` }
-    })
-      .then(res => (res.ok ? res.json() : []))
-      .then(setGroups)
-      .catch(() => setGroups([]));
-  }, [user]);
-
-  if (!user || groups.length === 0) return null;
+  // Hidden when the user is not logged in or is not a member of any group
+  if (!groups || groups.length === 0) return null;
 
   async function handleAdd() {
     if (!groupId) return;
-    const res = await fetch(`/api/groups/${groupId}/movies`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.token}`
-      },
-      body: JSON.stringify({
-        movieId: movie.id,
-        title: movie.title,
-        posterPath: movie.poster_path
-      })
-    });
-    if (res.status === 201) setMessage('Added to group');
-    else if (res.status === 409) setMessage('Already in this group');
-    else setMessage('Could not add movie');
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:3000/groups/${groupId}/movies`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ movieId, mediaType, title, posterPath })
+      });
+
+      if (res.status === 201) setMessage('Added to group');
+      else if (res.status === 409) setMessage('Already in this group');
+      else setMessage('Could not add to group');
+    } catch {
+      setMessage('Could not add to group');
+    }
   }
 
   return (
