@@ -957,32 +957,4 @@ body {
   background-color: #8254e8;
 }
 
-.movie-detail-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 40px 20px;
-}
-
-.movie-detail-flex  {
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-  align-items: flex-start;
-
-
-}
-
-.movie-poster img {
-  border-radius: 12px;
-  display: block;
-}
-
-.movie-info {
-  display: flex;
-  flex-direction: column;
-  padding-right: 100px;
-  max-width: 800px;
-
-}
-
 
