@@ -35,15 +35,115 @@ function Movies() {
         loadGenres()
     }, [])
 
-    // Add or remove a movie from the favorites list
-    const toggleFavorite = (id) => {
-        setFavoriteIds((currentFavorites) => {
-            if (currentFavorites.includes(id)) {
-                return currentFavorites.filter((favoriteId) => favoriteId !== id)
+    // Load the logged-in user's favorites
+    useEffect(() => {
+        const loadFavorites = async () => {
+            const token = localStorage.getItem('token')
+
+            if (!token) {
+                setFavoriteIds([])
+                return
             }
 
-            return [...currentFavorites, id]
-        })
+            try {
+                const response = await fetch(
+                    'http://localhost:3000/api/favorites',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    }
+                )
+
+                if (!response.ok) {
+                    throw new Error('Unable to load favorites')
+                }
+
+                const data = await response.json()
+                const favorites = data.favorites || []
+
+                // Only show movie favorites on the Movies page.
+                const movieIds = favorites
+                    .filter(favorite =>
+                        (favorite.media_type === 'movie')
+                    )
+                    .map(favorite =>
+                        Number(favorite.movie_id)
+                    )
+                    .filter(id => Number.isFinite(id))
+
+                setFavoriteIds(movieIds)
+            } catch (error) {
+                console.error('Error loading favorites:', error)
+            }
+        }
+
+        loadFavorites()
+    }, [])
+
+    // Add or remove a movie through the backend
+    const toggleFavorite = async (movie) => {
+        const token = localStorage.getItem('token')
+
+        if (!token) {
+            setError('Please log in to manage favorites.')
+            return
+        }
+
+        const isFavorite = favoriteIds.includes(movie.id)
+
+        try {
+            setError('')
+
+            const response = await fetch(
+                isFavorite
+                    ? `http://localhost:3000/api/favorites/movie/${movie.id}`
+                    : 'http://localhost:3000/api/favorites',
+                {
+                    method: isFavorite ? 'DELETE' : 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    ...(!isFavorite && {
+                        body: JSON.stringify({
+                            mediaId: movie.id,
+                            mediaType: 'movie',
+                            title: movie.title,
+                            posterPath: movie.poster_path ?? null,
+                            releaseYear: movie.release_date
+                                ? movie.release_date.slice(0, 4)
+                                : null,
+                            voteAverage: movie.vote_average ?? null
+                        })
+                    })
+                }
+            )
+
+            const data = await response.json().catch(() => ({}))
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || 'Unable to update favorites'
+                )
+            }
+
+            // Update the heart only after the server confirms success.
+            setFavoriteIds(currentFavorites => {
+                if (isFavorite) {
+                    return currentFavorites.filter(
+                        id => id !== movie.id
+                    )
+                }
+
+                return currentFavorites.includes(movie.id)
+                    ? currentFavorites
+                    : [...currentFavorites, movie.id]
+            })
+        } catch (error) {
+            console.error('Error updating favorites:', error)
+            setError(error.message || 'Unable to update favorites')
+        }
     }
 
     // Search for movies and actors using the entered search query
@@ -157,7 +257,7 @@ function Movies() {
                         rating={movie.vote_average}
                         type="movie"
                         isFavorite={favoriteIds.includes(movie.id)}
-                        onFavoriteToggle={() => toggleFavorite(movie.id)}
+                        onFavoriteToggle={() => toggleFavorite(movie)}
 
                         action={
                             <AddToGroup
@@ -186,7 +286,7 @@ function Movies() {
                         rating={movie.vote_average}
                         type="movie"
                         isFavorite={favoriteIds.includes(movie.id)}
-                        onFavoriteToggle={() => toggleFavorite(movie.id)}
+                        onFavoriteToggle={() => toggleFavorite(movie)}
 
                         action={
                             <AddToGroup
