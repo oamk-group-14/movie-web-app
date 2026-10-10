@@ -24,7 +24,7 @@ function SubmitReview (){
     const displayTitle = location.state?.movieTitle || location.state?.tvshowName || "Title";
     const mediaType = location.state?.mediaType || "movie";
     const { user } = useLogin();
-    const userId = user?.id || 1;
+    const userId = user?.id ;
 
 
 //Event handlers
@@ -84,7 +84,7 @@ return (
 
             <h1>Add user review </h1>
 
-        
+        {user ? (
             <form className="review-form" onSubmit={handleSubmit}>
                 <label htmlFor="rating"> Add rating </label>
                 <div>
@@ -113,6 +113,14 @@ return (
                 <button type="submit" className="review-submit-button"> Submit review </button>
 
             </form>
+            ) :  (
+                <div className="not-logged-in"> 
+                    <p> Login to leave a review </p>
+                    <button onClick={() => navigate("/login")}>
+                    Login here
+                    </button>
+                </div>
+            )}
 
         </div>
 
