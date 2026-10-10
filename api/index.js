@@ -10,6 +10,7 @@ import userRouter from './routes/userRouter.js'
 import favoriteRouter from './routes/favoriteRouter.js'
 
 import groupRouter from './routes/groupRouter.js';
+import reviewRouter from './routes/reviewRouter.js'
 
 const port = process.env.PORT || 3000
 
@@ -32,6 +33,7 @@ app.use('/api/favorites', favoriteRouter)
 
 
 app.use('/groups', groupRouter);
+app.use('/api/reviews', reviewRouter)
 
 // Health check endpoint for database connectivity
 app.get('/api/health', async (req, res) => {

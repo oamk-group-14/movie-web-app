@@ -67,3 +67,14 @@ CREATE TABLE Favourite_Items (
     added_at TIMESTAMP DEFAULT NOW(),
     PRIMARY KEY (list_id, media_type, movie_id)
 );
+
+CREATE TABLE Reviews (
+    review_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES Users(user_id) ON DELETE CASCADE NOT NULL,
+    movie_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    media_type VARCHAR(10) NOT NULL CHECK (media_type IN ('movie', 'tv')),
+    review_text TEXT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    created_at TIMESTAMP DEFAULT NOW()
+);

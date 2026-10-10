@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import ReviewsList from './ReviewList.jsx';
 
 function Movie() {
     // Get movie ID from the URL
@@ -52,23 +53,43 @@ function Movie() {
 
     // Return movie details to frontend
     return (
-        <div>
+        <div className='movie-detail-container'>
             <h1>{movie.title}</h1>
 
+            <div className='movie-detail-flex'>
+            <div className='movie-poster'>
             {movie.poster_path && (
                 <img
                     src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
                     alt={movie.title}
                     width="200"
                 />
-            )}
+            )} </div>
 
+            <div className='movie-info'>
             <p>{movie.overview}</p>
             <p>Release Date: {movie.release_date}</p>
             <p>Genres: {movie.genres.map((genre) => genre.name).join(', ')}</p>
             <p>Runtime: {movie.runtime}</p>
             <p>Vote Average: {movie.vote_average}</p>
+
+              <Link to={`/movies/${id}/review`} state={{ movieTitle: movie.title, mediaType: 'movie'}}>
+            <button className='add-reviewBtn'> Add Review </button> 
+            </Link>
+
+            </div>
+
+            </div>
+
+            <div>
+
+                <ReviewsList mediaType='movie'/>
+
+            </div>
+                    
         </div>
+
+        
     )
 }
 
