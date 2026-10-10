@@ -63,7 +63,7 @@ function MediaCard({
                                 : `Add ${title} to favorites`
                         }
                     >
-                        ♡
+                        {isFavorite ? '♥' : '♡'}
                     </button>
                 )}
 
@@ -87,5 +87,6 @@ function MediaCard({
         </div>
     )
 }
+//console.log('Favorite state:', title, isFavorite)
 
 export default MediaCard

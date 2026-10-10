@@ -36,15 +36,111 @@ function TVShows() {
         loadGenres()
     }, [])
 
-    // Add or remove a TV show from the temporary favorites list
-    const toggleFavorite = (id) => {
-        setFavoriteIds((currentFavorites) => {
-            if (currentFavorites.includes(id)) {
-                return currentFavorites.filter((favoriteId) => favoriteId !== id)
+    // Load the logged-in user's saved TV show favorites
+useEffect(() => {
+    const loadFavorites = async () => {
+        const token = localStorage.getItem('token')
+
+        if (!token) {
+            setFavoriteIds([])
+            return
+        }
+
+        try {
+            const response = await fetch(
+                'http://localhost:3000/api/favorites',
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            )
+
+            if (!response.ok) {
+                throw new Error('Unable to load favorites')
             }
 
-            return [...currentFavorites, id]
-        })
+            const data = await response.json()
+            const favorites = data.favorites || []
+
+            // Only show TV show favorites on this page.
+            const tvIds = favorites
+                .filter(favorite => favorite.media_type === 'tv')
+                .map(favorite => Number(favorite.movie_id))
+                .filter(id => Number.isFinite(id))
+
+            setFavoriteIds(tvIds)
+        } catch (error) {
+            console.error('Error loading favorites:', error)
+        }
+    }
+
+    loadFavorites()
+}, [])
+
+    // Add or remove a TV show through the backend
+    const toggleFavorite = async (tvshow) => {
+        const token = localStorage.getItem('token')
+
+        if (!token) {
+            setError('Please log in to manage favorites.')
+            return
+        }
+
+        const isFavorite = favoriteIds.includes(tvshow.id)
+
+        try {
+            setError('')
+
+            const response = await fetch(
+                isFavorite
+                    ? `http://localhost:3000/api/favorites/tv/${tvshow.id}`
+                    : 'http://localhost:3000/api/favorites',
+                {
+                    method: isFavorite ? 'DELETE' : 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    ...(!isFavorite && {
+                        body: JSON.stringify({
+                            mediaId: tvshow.id,
+                            mediaType: 'tv',
+                            title: tvshow.name,
+                            posterPath: tvshow.poster_path ?? null,
+                            releaseYear: tvshow.first_air_date
+                                ? tvshow.first_air_date.slice(0, 4)
+                                : null,
+                            voteAverage: tvshow.vote_average ?? null
+                        })
+                    })
+                }
+            )
+
+            const data = await response.json().catch(() => ({}))
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || 'Unable to update favorites'
+                )
+            }
+
+            // Update the heart after the backend confirms success.
+            setFavoriteIds(currentFavorites => {
+                if (isFavorite) {
+                    return currentFavorites.filter(
+                        id => id !== tvshow.id
+                    )
+                }
+
+                return currentFavorites.includes(tvshow.id)
+                    ? currentFavorites
+                    : [...currentFavorites, tvshow.id]
+            })
+        } catch (error) {
+            console.error('Error updating favorites:', error)
+            setError(error.message || 'Unable to update favorites')
+        }
     }
 
     // Search for TV shows and actors using the entered search query
@@ -158,7 +254,7 @@ function TVShows() {
                         rating={tvshow.vote_average}
                         type="tv"
                         isFavorite={favoriteIds.includes(tvshow.id)}
-                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}
+                        onFavoriteToggle={() => toggleFavorite(tvshow)}
 
                         action={
                             <AddToGroup
@@ -187,7 +283,7 @@ function TVShows() {
                         rating={tvshow.vote_average}
                         type="tv"
                         isFavorite={favoriteIds.includes(tvshow.id)}
-                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}
+                        onFavoriteToggle={() => toggleFavorite(tvshow)}
 
                         action={
                             <AddToGroup
