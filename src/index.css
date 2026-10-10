@@ -869,18 +869,23 @@ body {
 }
 
 
-/* GROUP MOVIES + ADD TO GROUP - MOBILE */
+/* GROUP MOVIES + MEDIA CARD ACTION - MOBILE */
 
 @media (max-width: 550px) {
 
   .group-movie-meta,
   .group-movie-remove,
-  .add-to-group {
+  .media-card-action {
     grid-column: 2;
     justify-self: start;
     margin: 0 0 10px;
   }
+
+  .add-to-group {
+    margin: 0;
+  }
 }
+
 
 /* Reviews */
 
@@ -956,5 +961,8 @@ body {
 .add-reviewBtn:hover {
   background-color: #8254e8;
 }
+
+
+
 
 

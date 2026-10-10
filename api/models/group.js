@@ -167,10 +167,10 @@ const getGroupsForMember = async (userId) => {
   return result.rows;
 };
 
-// Get movies added to a group, newest first
+// Get movies and TV shows added to a group, newest first
 const getGroupMovies = async (groupId) => {
   const result = await pool.query(
-    `SELECT gm.movie_id, gm.title, gm.poster_path, gm.added_at,
+    `SELECT gm.movie_id, gm.media_type, gm.title, gm.poster_path, gm.added_at,
             gm.added_by, u.email AS added_by_email
      FROM Group_Movies gm
      LEFT JOIN Users u ON u.user_id = gm.added_by
@@ -181,34 +181,34 @@ const getGroupMovies = async (groupId) => {
   return result.rows;
 };
 
-// Add a movie to a group
-const addGroupMovie = async (groupId, movieId, title, posterPath, userId) => {
+// Add a movie or TV show to a group
+const addGroupMovie = async (groupId, movieId, mediaType, title, posterPath, userId) => {
   const result = await pool.query(
-    `INSERT INTO Group_Movies (group_id, movie_id, title, poster_path, added_by)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING movie_id, title, poster_path, added_at, added_by`,
-    [groupId, movieId, title, posterPath, userId]
+    `INSERT INTO Group_Movies (group_id, movie_id, media_type, title, poster_path, added_by)
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING movie_id, media_type, title, poster_path, added_at, added_by`,
+    [groupId, movieId, mediaType, title, posterPath, userId]
   );
   return result.rows[0];
 };
 
-// Remove a movie from a group
-const removeGroupMovie = async (groupId, movieId) => {
+// Remove a movie or TV show from a group
+const removeGroupMovie = async (groupId, mediaType, movieId) => {
   const result = await pool.query(
     `DELETE FROM Group_Movies
-     WHERE group_id = $1 AND movie_id = $2`,
-    [groupId, movieId]
+     WHERE group_id = $1 AND media_type = $2 AND movie_id = $3`,
+    [groupId, mediaType, movieId]
   );
   return result.rowCount > 0;
 };
 
-// Is movie in the group and who can delete it
-const getGroupMovie = async (groupId, movieId) => {
+// Get who added a movie or TV show to a group (used to check delete permission)
+const getGroupMovie = async (groupId, mediaType, movieId) => {
   const result = await pool.query(
     `SELECT added_by
      FROM Group_Movies
-     WHERE group_id = $1 AND movie_id = $2`,
-    [groupId, movieId]
+     WHERE group_id = $1 AND media_type = $2 AND movie_id = $3`,
+    [groupId, mediaType, movieId]
   );
   return result.rows[0];
 };

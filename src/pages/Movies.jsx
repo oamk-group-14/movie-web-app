@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import MediaCard from '../components/MediaCard'
 import MediaGrid from '../components/MediaGrid';
+import AddToGroup from '../components/AddToGroup';
+import useMyGroups from '../hooks/useMyGroups';
 
 
 function Movies() {
@@ -12,7 +14,8 @@ function Movies() {
     const [selectedGenre, setSelectedGenre] = useState(null)
     const [favoriteIds, setFavoriteIds] = useState([])
     const [error, setError] = useState('')
-    
+    const myGroups = useMyGroups()
+
 
     // Load available movie genres when the page is opened
     useEffect(() => {
@@ -67,10 +70,10 @@ function Movies() {
 
             const actorData = await actorResponse.json()
             const movieData = await movieResponse.json()
-            
+
             setActors(actorData.results || [])
             setMovies(movieData.results || [])
-            
+
 
         } catch (error) {
             console.error(error)
@@ -112,11 +115,11 @@ function Movies() {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                 />
-                
+
                 <button onClick={search}>
                     Search
                 </button>
-                
+
                 <button className={`genre-button ${showGenres ? 'active' : ''}`} onClick={() => setShowGenres(!showGenres)}>
                     Genres
                 </button>
@@ -155,6 +158,16 @@ function Movies() {
                         type="movie"
                         isFavorite={favoriteIds.includes(movie.id)}
                         onFavoriteToggle={() => toggleFavorite(movie.id)}
+
+                        action={
+                            <AddToGroup
+                                groups={myGroups}
+                                movieId={movie.id}
+                                mediaType="movie"
+                                title={movie.title}
+                                posterPath={movie.poster_path}
+                            />
+                        }
                     />
                 ))}
 
@@ -174,6 +187,16 @@ function Movies() {
                         type="movie"
                         isFavorite={favoriteIds.includes(movie.id)}
                         onFavoriteToggle={() => toggleFavorite(movie.id)}
+
+                        action={
+                            <AddToGroup
+                                groups={myGroups}
+                                movieId={movie.id}
+                                mediaType="movie"
+                                title={movie.title}
+                                posterPath={movie.poster_path}
+                            />
+                        }
                     />
                 ))}
             </MediaGrid>

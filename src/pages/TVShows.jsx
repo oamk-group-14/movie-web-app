@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import MediaCard from '../components/MediaCard';
 import MediaGrid from '../components/MediaGrid';
+import AddToGroup from '../components/AddToGroup';
+import useMyGroups from '../hooks/useMyGroups';
 
 function TVShows() {
     const [query, setQuery] = useState('')
     const [tvshows, setTvShows] = useState([])
     const [actors, setActors] = useState([])
-    const [genres, setGenres] = useState([]) 
+    const [genres, setGenres] = useState([])
     const [showGenres, setShowGenres] = useState(false)
     const [favoriteIds, setFavoriteIds] = useState([])
     const [error, setError] = useState('')
+    const myGroups = useMyGroups()
 
     // Load available TV show genres when the page is opened
     useEffect(() => {
@@ -68,10 +71,10 @@ function TVShows() {
 
             const actorData = await actorResponse.json()
             const tvshowData = await tvshowResponse.json()
-            
+
             setActors(actorData.results || [])
             setTvShows(tvshowData.results || [])
-            
+
 
         } catch (error) {
             console.error(error)
@@ -143,26 +146,7 @@ function TVShows() {
                 {/* Display TV shows found through actor searches */}
                 {actors.map((tvshow) => (
                     <MediaCard
-                        key={tvshow.id}
-                        id={tvshow.id}
-                        title={tvshow.title}
-                        posterUrl={
-                            tvshow.poster_path
-                                ? `https://image.tmdb.org/t/p/w300${tvshow.poster_path}`
-                                : null
-                        }
-                        date={tvshow.release_date}
-                        rating={tvshow.vote_average}
-                        type="tv"
-                        isFavorite={favoriteIds.includes(tvshow.id)}
-                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}
-                    />
-                ))}
-
-                {/* Display TV shows found through title or genre searches */}
-                {tvshows.map((tvshow) => (
-                    <MediaCard
-                        key={tvshow.id}
+                        key={`actor-${tvshow.id}`}
                         id={tvshow.id}
                         title={tvshow.name}
                         posterUrl={
@@ -174,7 +158,46 @@ function TVShows() {
                         rating={tvshow.vote_average}
                         type="tv"
                         isFavorite={favoriteIds.includes(tvshow.id)}
-                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}   
+                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}
+
+                        action={
+                            <AddToGroup
+                                groups={myGroups}
+                                movieId={tvshow.id}
+                                mediaType="tv"
+                                title={tvshow.name}
+                                posterPath={tvshow.poster_path}
+                            />
+                        }
+                    />
+                ))}
+
+                {/* Display TV shows found through title or genre searches */}
+                {tvshows.map((tvshow) => (
+                    <MediaCard
+                        key={`tvshow-${tvshow.id}`}
+                        id={tvshow.id}
+                        title={tvshow.name}
+                        posterUrl={
+                            tvshow.poster_path
+                                ? `https://image.tmdb.org/t/p/w300${tvshow.poster_path}`
+                                : null
+                        }
+                        date={tvshow.first_air_date}
+                        rating={tvshow.vote_average}
+                        type="tv"
+                        isFavorite={favoriteIds.includes(tvshow.id)}
+                        onFavoriteToggle={() => toggleFavorite(tvshow.id)}
+
+                        action={
+                            <AddToGroup
+                                groups={myGroups}
+                                movieId={tvshow.id}
+                                mediaType="tv"
+                                title={tvshow.name}
+                                posterPath={tvshow.poster_path}
+                            />
+                        }
                     />
                 ))}
             </MediaGrid>
