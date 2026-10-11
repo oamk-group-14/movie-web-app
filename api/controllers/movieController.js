@@ -4,6 +4,8 @@ const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 // These are used to save Now Showing movies to server memory for 60 minutes to decrease wait time when reloading page
 let nowShowingCache = null; 
 let nowShowingCachedAt = 0;
+let popularMoviesCache = null;
+let popularMoviesCachedAt = 0;
 const CACHE_DURATION = 60 * 60 * 1000;
 
 // Shared helper for all TMDB requests
@@ -223,6 +225,45 @@ export const getNowShowing = async (req, res) => {
       error: error.status
         ? "TMDB API request failed" // If error status is found
         : "An error occurred on the server" // If error status not found
+    });
+  }
+};
+
+// Popular movies in Finland, cached for 60 minutes
+export const getPopularMovies = async (req, res) => {
+  try {
+    const now = Date.now();
+
+    // Return cached data if still fresh (under 60min)
+    if (popularMoviesCache && now - popularMoviesCachedAt < CACHE_DURATION) {
+      return res.json(popularMoviesCache);
+    }
+
+    const data = await tmdbFetch(
+      "/movie/popular?language=en-US&region=FI&page=1"
+    );
+
+    const movies = data.results.map((movie) => ({
+      id: movie.id,
+      title: movie.title,
+      year: movie.release_date ? movie.release_date.slice(0, 4) : null,
+      posterUrl: movie.poster_path
+        ? `${TMDB_IMAGE_BASE}/w300${movie.poster_path}`
+        : null,
+      voteAverage: movie.vote_average
+    }));
+
+    popularMoviesCache = movies;
+    popularMoviesCachedAt = now;
+
+    res.json(movies);
+  } catch (error) {
+    console.error("Popular movies fetch error:", error);
+
+    res.status(error.status || 500).json({
+      error: error.status
+        ? "TMDB API request failed"
+        : "An error occurred on the server"
     });
   }
 };
