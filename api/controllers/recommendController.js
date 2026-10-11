@@ -1,30 +1,357 @@
-import {
-    getUserReviews,
-    getUserFavorites
-} from '../models/recommend.js'
+const TMDB_BASE = 'https://api.themoviedb.org/3'
 
+// Fetch data from TMDB using the API token from the .env file
+const tmdbFetch = async (path) => {
+    const response = await fetch(`${TMDB_BASE}${path}`, {
+        headers: {
+            Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
+            accept: 'application/json'
+        }
+    })
+
+    // Stop processing if TMDB returns an error response
+    if (!response.ok) {
+        throw new Error('TMDB API request failed')
+    }
+
+    return response.json()
+}
+
+// Test endpoint for checking that the recommendation route works
 export const testUserPreferences = async (req, res) => {
+    res.json({
+        message: 'Recommendation route works'
+    })
+}
+
+// Generate temporary AI movie recommendations
+export const getMovieRecommendations = async (req, res) => {
     try {
-        // Get the logged-in user's ID from the authentication token.
-        const userId = req.user.id
+        // Temporary user preferences will later be replaced with data from reviews and favorites
+        const userPreferences = {
+            favoriteGenres: [
+                'Science Fiction',
+                'Thriller',
+                'Action'
+            ],
+            preferredStyle: [
+                'interesting story',
+                'strong atmosphere',
+                'highly rated movies'
+            ]
+        }
 
-        // Get the user's reviews from the database.
-        const reviews = await getUserReviews(userId)
+        console.log('RECOMMENDATION: Starting AI recommendation process')
 
-        // Get the user's favourites from the database.
-        const favorites = await getUserFavorites(userId)
+        // Get popular movies from TMDB to use as recommendation candidates
+        const tmdbData = await tmdbFetch(
+            '/movie/popular?language=en-US&page=1'
+        )
 
-        // Return the user's reviews and favourites as JSON.
+        // Give the AI useful information about each candidate movie
+        const movieCandidates = tmdbData.results
+            .slice(0, 30)
+            .map((movie) => ({
+                id: movie.id,
+                title: movie.title,
+                overview: movie.overview,
+                rating: movie.vote_average,
+                genreIds: movie.genre_ids
+            }))
+
+        console.log(
+            'RECOMMENDATION: Got',
+            movieCandidates.length,
+            'TMDB candidates'
+        )
+
+        // Create the prompt that describes the temporary user profile and candidates
+        const prompt = `
+        You are a movie recommendation AI.
+
+        You are recommending movies for one user.
+
+        The user's temporary preferences are:
+
+        Favorite genres:
+        ${userPreferences.favoriteGenres.map((genre) => `- ${genre}`).join('\n')}
+
+        Preferred movie style:
+        ${userPreferences.preferredStyle.map((style) => `- ${style}`).join('\n')}
+
+        Choose exactly 5 movies from the candidate list.
+
+        Candidate movies:
+        ${movieCandidates
+            .map(
+                (movie) => `
+        ID: ${movie.id}
+        Title: ${movie.title}
+        Rating: ${movie.rating}
+        Overview: ${movie.overview}
+        `
+    )
+    .join('\n')}
+
+    Return ONLY valid JSON.
+
+    Use exactly this structure:
+
+    {
+    "recommendations": [
+        {
+        "id": 123,
+        "reason": "Short explanation"
+        }
+    ]
+    }
+
+    Rules:
+    - Return exactly 5 recommendations.
+    - Every id MUST come from the candidate list.
+    - Never invent an id.
+    - Do not recommend the same movie twice.
+    `
+        console.log('RECOMMENDATION: Sending request to Ollama')
+
+        // Send the recommendation request to the cloud Ollama model
+        const response = await fetch(
+            `${process.env.OLLAMA_URL}/api/generate`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'gemma4:cloud',
+                    prompt,
+                    stream: false,
+                    format: 'json'
+                }),
+
+                // Allow enough time for the local AI model to respond
+                signal: AbortSignal.timeout(400000)
+            }
+        )
+
+        console.log(
+            'RECOMMENDATION: Ollama status:',
+            response.status
+        )
+
+        // Stop processing if Ollama returned an error
+        if (!response.ok) {
+            const errorText = await response.text()
+
+            console.error(
+                'OLLAMA ERROR RESPONSE:',
+                errorText
+            )
+
+            throw new Error('Ollama request failed')
+        }
+
+        // Convert the Ollama response into JS object
+        const data = await response.json()
+
+        console.log(
+            'OLLAMA RAW RESPONSE:',
+            data.response
+        )
+
+        // Remove Markdown code fences if the AI wrapped the JSON in them
+        const cleanedResponse = data.response
+            .replace(/^```json\s*/i, '')
+            .replace(/^```\s*/i, '')
+            .replace(/\s*```$/i, '')
+            .trim()
+
+        // Parse the cleaned JSON generated by the AI
+        const aiResult = JSON.parse(cleanedResponse)
+
+        // Check that the AI returned a recommendations array
+        if (!Array.isArray(aiResult.recommendations)) {
+            throw new Error(
+                'AI response does not contain recommendations'
+            )
+        }
+
+        // Create a list of valid TMDB movie IDs
+        const validMovieIds = movieCandidates.map(
+            (movie) => movie.id
+        )
+
+        // Keep only movies that actually exist in the TMDB candidate list
+        const validRecommendations = aiResult.recommendations
+            .filter((recommendation) =>
+                validMovieIds.includes(Number(recommendation.id))
+            )
+            .filter(
+                (recommendation, index, array) =>
+                    array.findIndex(
+                        (item) =>
+                            Number(item.id) ===
+                            Number(recommendation.id)
+                    ) === index
+            )
+            .slice(0, 5)
+
+        console.log(
+            'RECOMMENDATION: Valid AI recommendations:',
+            validRecommendations
+        )
+
+        // Return the validated AI recommendations to React
         res.json({
-            reviews,
-            favorites
+            recommendations: validRecommendations
         })
 
     } catch (error) {
-        console.error('Failed to get user preferences:', error)
+        console.error(
+            'RECOMMENDATION ERROR:',
+            error
+        )
 
         res.status(500).json({
-            error: 'Could not get user preferences'
+            error: 'Could not get movie recommendations'
         })
     }
 }
+
+export const getTvShowRecommendations = async (req, res) => {
+    try {
+        const userPreferences = {
+            favoriteGenres: [
+                'Science Fiction',
+                'Thriller',
+                'Action'
+            ],
+            preferredStyle: [
+                'interesting story',
+                'strong atmosphere',
+                'highly rated TV shows'
+            ]
+        }
+
+        console.log('RECOMMENDATION: Starting AI TV show recommendation process')
+
+        const tmdbData = await tmdbFetch(
+            '/tv/popular?language=en-US&page=1'
+        )
+
+        const tvShowCandidates = tmdbData.results
+            .slice(0, 30)
+            .map((show) => ({
+                id: show.id,
+                title: show.name,
+                overview: show.overview,
+                rating: show.vote_average,
+                genreIds: show.genre_ids
+            }))
+
+        const prompt = `
+        You are a TV show recommendation AI.
+
+        Recommend TV shows for one user.
+
+        The user's temporary preferences are:
+
+        Favorite genres:
+        ${userPreferences.favoriteGenres.map((genre) => `- ${genre}`).join('\n')}
+
+        Preferred TV show style:
+        ${userPreferences.preferredStyle.map((style) => `- ${style}`).join('\n')}
+
+        Choose exactly 5 TV shows from the candidate list.
+
+        Candidate TV shows:
+        ${tvShowCandidates.map((show) => `
+        ID: ${show.id}
+        Title: ${show.title}
+        Rating: ${show.rating}
+        Overview: ${show.overview}
+        `).join('\n')}
+
+        Return ONLY valid JSON.
+
+        Use exactly this structure:
+
+        {
+            "recommendations": [
+                {
+                    "id": 123,
+                    "reason": "Short explanation"
+                }
+            ]
+        }
+
+        Rules:
+        - Return exactly 5 recommendations.
+        - Every id MUST come from the candidate list.
+        - Never invent an id.
+        - Do not recommend the same TV show twice.
+        - Recommend TV shows only, never movies.
+        `
+
+        const response = await fetch(
+            `${process.env.OLLAMA_URL}/api/generate`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'gemma4:cloud',
+                    prompt,
+                    stream: false,
+                    format: 'json'
+                }),
+                signal: AbortSignal.timeout(400000)
+            }
+        )
+
+        if (!response.ok) {
+            const errorText = await response.text()
+            console.error('OLLAMA TV SHOW ERROR:', errorText)
+            throw new Error('Ollama TV show recommendation request failed')
+        }
+
+        const data = await response.json()
+
+        const cleanedResponse = data.response
+            .replace(/^```json\s*/i, '')
+            .replace(/^```\s*/i, '')
+            .replace(/\s*```$/i, '')
+            .trim()
+
+        const aiResult = JSON.parse(cleanedResponse)
+
+        if (!Array.isArray(aiResult.recommendations)) {
+            throw new Error('AI response does not contain recommendations')
+        }
+
+        const validTvShowIds = tvShowCandidates.map((show) => show.id)
+
+        const validRecommendations = aiResult.recommendations
+            .filter((recommendation) =>
+                validTvShowIds.includes(Number(recommendation.id))
+            )
+            .filter((recommendation, index, array) =>
+                array.findIndex(
+                    (item) => Number(item.id) === Number(recommendation.id)
+                ) === index
+            )
+            .slice(0, 5)
+
+        res.json({
+            recommendations: validRecommendations
+        })
+    } catch (error) {
+        console.error('TV SHOW RECOMMENDATION ERROR:', error)
+
+        res.status(500).json({
+            error: 'Could not get TV show recommendations'
+        })
+    }
+}
+

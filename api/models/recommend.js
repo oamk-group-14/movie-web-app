@@ -1,5 +1,6 @@
 import { pool } from "./db.js";
 
+// Database model for later use when Favorites and Reviews backend is done
 // Get movies from database that user has rated
 export const getUserReviews = async (userId) => {
     // Run sql query to get movie ID and rating from user reviews
