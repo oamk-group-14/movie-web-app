@@ -1,208 +1,482 @@
-import { useState, useEffect } from 'react';
-import MediaCard from '../components/MediaCard'
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useLogin } from '../context/LoginContext';
+import MediaCard from '../components/MediaCard';
 import MediaGrid from '../components/MediaGrid';
 import AddToGroup from '../components/AddToGroup';
 import useMyGroups from '../hooks/useMyGroups';
 
+const API = 'http://localhost:3000/api';
 
 function Movies() {
-    const [query, setQuery] = useState('')
-    const [movies, setMovies] = useState([])
-    const [actors, setActors] = useState([])
-    const [genres, setGenres] = useState([])
-    const [showGenres, setShowGenres] = useState(false)
-    const [selectedGenre, setSelectedGenre] = useState(null)
-    const [favoriteIds, setFavoriteIds] = useState([])
-    const [error, setError] = useState('')
-    const myGroups = useMyGroups()
+    const { user, token, loading: authLoading } = useLogin();
+    const myGroups = useMyGroups();
 
+    // Store the search query and movie results
+    const [query, setQuery] = useState('');
+    const [movies, setMovies] = useState([]);
+    const [moviePage, setMoviePage] = useState(1);
+    const [totalMoviePages, setTotalMoviePages] = useState(1);
+    const [movieLoading, setMovieLoading] = useState(false);
 
-    // Load available movie genres when the page is opened
+    // Store genre and actor search data
+    const [actors, setActors] = useState([]);
+    const [genres, setGenres] = useState([]);
+    const [showGenres, setShowGenres] = useState(false);
+    const [selectedGenre, setSelectedGenre] = useState(null);
+
+    // Store favorite movie IDs and personalized recommendations
+    const [favoriteIds, setFavoriteIds] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
+    const [recommendationLoading, setRecommendationLoading] = useState(true);
+    const [recommendationError, setRecommendationError] = useState('');
+    const [error, setError] = useState('');
+
+    // Keep references for infinite scrolling and duplicate request prevention
+    const loadMoreRef = useRef(null);
+    const movieRequestStarted = useRef(false);
+
+    // Fetch available movie genres when the page loads
     useEffect(() => {
-        const loadGenres = async () => {
+        let cancelled = false;
+
+        async function loadGenres() {
             try {
-                const response = await fetch(
-                    'http://localhost:3000/api/movies/genres'
-                )
-
-                const data = await response.json()
-                setGenres(data)
-            } catch (error) {
-                console.error(error)
-            }
-        }
-
-        loadGenres()
-    }, [])
-
-    // Load the logged-in user's favorites
-    useEffect(() => {
-        const loadFavorites = async () => {
-            const token = localStorage.getItem('token')
-
-            if (!token) {
-                setFavoriteIds([])
-                return
-            }
-
-            try {
-                const response = await fetch(
-                    'http://localhost:3000/api/favorites',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                )
+                const response = await fetch(`${API}/movies/genres`);
 
                 if (!response.ok) {
-                    throw new Error('Unable to load favorites')
+                    throw new Error('Genre fetch failed');
                 }
 
-                const data = await response.json()
-                const favorites = data.favorites || []
+                const data = await response.json();
 
-                // Only show movie favorites on the Movies page.
-                const movieIds = favorites
-                    .filter(favorite =>
-                        (favorite.media_type === 'movie')
-                    )
-                    .map(favorite =>
-                        Number(favorite.movie_id)
-                    )
-                    .filter(id => Number.isFinite(id))
-
-                setFavoriteIds(movieIds)
-            } catch (error) {
-                console.error('Error loading favorites:', error)
+                // Update state only while this effect is active
+                if (!cancelled) {
+                    setGenres(Array.isArray(data) ? data : data.genres || []);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    console.error('Genre loading failed:', err);
+                }
             }
         }
 
-        loadFavorites()
-    }, [])
+        loadGenres();
 
-    // Add or remove a movie through the backend
-    const toggleFavorite = async (movie) => {
-        const token = localStorage.getItem('token')
+        // Prevent state updates if the component unmounts
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
-        if (!token) {
-            setError('Please log in to manage favorites.')
-            return
+    // Load the logged-in user's favorites.
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadFavorites() {
+            const authToken = token || localStorage.getItem('token');
+
+            if (!authToken) {
+                setFavoriteIds([]);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/favorites`, {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Unable to load favorites');
+                }
+
+                const data = await response.json();
+
+                const ids = (data.favorites || [])
+                    .filter((favorite) => favorite.media_type === 'movie')
+                    .map((favorite) => Number(favorite.movie_id))
+                    .filter(Number.isFinite);
+
+                if (!cancelled) {
+                    setFavoriteIds(ids);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    console.error('Error loading favorites:', err);
+                }
+            }
         }
 
-        const isFavorite = favoriteIds.includes(movie.id)
+        loadFavorites();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [token]);
+
+    // Add a movie to favorites or remove it from the user's favorites
+    const toggleFavorite = async (movie) => {
+        const authToken = token || localStorage.getItem('token');
+
+        // Require authentication before changing favorites
+        if (!authToken) {
+            setError('Please log in to manage favorites.');
+            return;
+        }
+
+        // Check that the movie has a valid ID
+        if (!movie || movie.id == null) {
+            setError('Unable to identify this movie.');
+            return;
+        }
+
+        const id = Number(movie.id);
+        const isFavorite = favoriteIds.includes(id);
 
         try {
-            setError('')
+            setError('');
 
             const response = await fetch(
                 isFavorite
-                    ? `http://localhost:3000/api/favorites/movie/${movie.id}`
-                    : 'http://localhost:3000/api/favorites',
+                    ? `${API}/favorites/movie/${id}`
+                    : `${API}/favorites`,
                 {
                     method: isFavorite ? 'DELETE' : 'POST',
                     headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        Authorization: `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
                     },
                     ...(!isFavorite && {
                         body: JSON.stringify({
-                            mediaId: movie.id,
+                            mediaId: id,
                             mediaType: 'movie',
                             title: movie.title,
                             posterPath: movie.poster_path ?? null,
                             releaseYear: movie.release_date
                                 ? movie.release_date.slice(0, 4)
                                 : null,
-                            voteAverage: movie.vote_average ?? null
-                        })
-                    })
+                            voteAverage: movie.vote_average ?? null,
+                        }),
+                    }),
                 }
-            )
+            );
 
-            const data = await response.json().catch(() => ({}))
+            const data = await response.json().catch(() => ({}));
 
             if (!response.ok) {
                 throw new Error(
                     data.error || 'Unable to update favorites'
-                )
+                );
             }
 
-            // Update the heart only after the server confirms success.
-            setFavoriteIds(currentFavorites => {
+            // Update the favorite IDs after the backend confirms the change
+            setFavoriteIds((current) => {
                 if (isFavorite) {
-                    return currentFavorites.filter(
-                        id => id !== movie.id
-                    )
+                    return current.filter((favoriteId) => favoriteId !== id);
                 }
 
-                return currentFavorites.includes(movie.id)
-                    ? currentFavorites
-                    : [...currentFavorites, movie.id]
-            })
-        } catch (error) {
-            console.error('Error updating favorites:', error)
-            setError(error.message || 'Unable to update favorites')
+                return current.includes(id) ? current : [...current, id];
+            });
+        } catch (err) {
+            console.error('Error updating favorites:', err);
+            setError(err.message || 'Unable to update favorites');
         }
-    }
+    };
 
-    // Search for movies and actors using the entered search query
+    // Search for movies by title and actors by name
     const search = async () => {
-        if (!query.trim()) {
-            setError('Please enter a movie title or actor name')
-            return
+        const searchQuery = query.trim();
+
+        if (!searchQuery) {
+            setError('Please enter a movie title or actor name');
+            return;
         }
+
+        // Clear the previous search results and reset the movie list so the new search starts from the first page
+        setError('');
+        setSelectedGenre(null);
+        setMovies([]);
+        setActors([]);
+        setMoviePage(1);
+        setTotalMoviePages(1);
+        movieRequestStarted.current = false;
 
         try {
-            setError('')
+            // Fetch movie and actor results at the same time
+            const [actorResponse, movieResponse] = await Promise.all([
+                fetch(
+                    `${API}/movies/actors/search?query=${encodeURIComponent(searchQuery)}`
+                ),
+                fetch(
+                    `${API}/movies/search?query=${encodeURIComponent(searchQuery)}&page=1`
+                ),
+            ]);
 
-            const actorResponse = await fetch(
-                `http://localhost:3000/api/movies/actors/search?query=${encodeURIComponent(query)}`
-            )
-
-            const movieResponse = await fetch(
-                `http://localhost:3000/api/movies/search?query=${encodeURIComponent(query)}`
-            )
-
-            if (!movieResponse.ok || !actorResponse.ok) {
-                throw new Error('Search failed')
+            if (!actorResponse.ok || !movieResponse.ok) {
+                throw new Error('Search failed');
             }
 
-            const actorData = await actorResponse.json()
-            const movieData = await movieResponse.json()
+            const [actorData, movieData] = await Promise.all([
+                actorResponse.json(),
+                movieResponse.json(),
+            ]);
 
-            setActors(actorData.results || [])
-            setMovies(movieData.results || [])
-
-
-        } catch (error) {
-            console.error(error)
-            setError('Unable to search')
+            // Save the actors and movies returned by the search and track which page is displayed and how many pages are available
+            setActors(actorData.results || []);
+            setMovies(movieData.results || []);
+            setMoviePage(movieData.page || 1);
+            setTotalMoviePages(movieData.totalPages || 1);
+        } catch (err) {
+            console.error('Movie search failed:', err);
+            setError('Unable to search');
         }
-    }
+    };
 
-    // Search for movies belonging to the selected genre
+    // Find movies belonging to a selected genre
     const searchByGenre = async (genreId) => {
-        try {
-            setError('')
+        // Reset the current search before loading genre results
+        setError('');
+        setMovies([]);
+        setActors([]);
+        setQuery('');
+        setSelectedGenre(genreId);
+        setMoviePage(1);
+        setTotalMoviePages(1);
+        movieRequestStarted.current = false;
 
+        try {
             const response = await fetch(
-                `http://localhost:3000/api/movies/genre/${genreId}`
-            )
+                `${API}/movies/genre/${genreId}?page=1`
+            );
 
             if (!response.ok) {
-                throw new Error('Genre search failed')
+                throw new Error('Genre search failed');
             }
 
-            const data = await response.json()
+            const data = await response.json();
 
-            setMovies(data)
-            setSelectedGenre(genreId)
-        } catch (error) {
-            console.error(error)
-            setError('Unable to search by genre')
+            // Save the movies found in the selected genre and track the current page and the total number of pages
+            setMovies(data.results || []);
+            setMoviePage(data.page || 1);
+            setTotalMoviePages(data.totalPages || 1);
+        } catch (err) {
+            console.error('Genre search failed:', err);
+            setError('Unable to search by genre');
         }
-    }
+    };
+
+    // Load the next page of results without adding duplicate movies
+    const loadMoreMovies = useCallback(async () => {
+        const isGenreSearch = selectedGenre !== null;
+
+        // Stop when there is no active search or another request is running
+        if (!query.trim() && !isGenreSearch) return;
+        if (movieRequestStarted.current || movieLoading) return;
+        if (moviePage >= totalMoviePages) return;
+
+        movieRequestStarted.current = true;
+        setMovieLoading(true);
+
+        const nextPage = moviePage + 1;
+
+        try {
+            // Choose the correct endpoint for the current search type
+            const url = isGenreSearch
+                ? `${API}/movies/genre/${selectedGenre}?page=${nextPage}`
+                : `${API}/movies/search?query=${encodeURIComponent(query.trim())}&page=${nextPage}`;
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error('Could not load more movies');
+            }
+
+            const data = await response.json();
+
+            // Append only movies that are not already in the results
+            setMovies((current) => {
+                const existingIds = new Set(
+                    current.map((movie) => movie.id)
+                );
+
+                const newMovies = (data.results || []).filter(
+                    (movie) => !existingIds.has(movie.id)
+                );
+
+                return [...current, ...newMovies];
+            });
+
+            // Update the current page and the total number of pages after loading more movies
+            setMoviePage(data.page || nextPage);
+            setTotalMoviePages(data.totalPages || totalMoviePages);
+        } catch (err) {
+            console.error('Loading more movies failed:', err);
+            setError('Could not load more movies');
+        } finally {
+            // Allow another request after the current one finishes
+            movieRequestStarted.current = false;
+            setMovieLoading(false);
+        }
+    }, [
+        query,
+        selectedGenre,
+        moviePage,
+        totalMoviePages,
+        movieLoading,
+    ]);
+
+    // Automatically request more results when the user approaches the bottom
+    useEffect(() => {
+        const element = loadMoreRef.current;
+
+        // Observe the page only when more search results are available
+        if (!element) return;
+        if (!query.trim() && selectedGenre === null) return;
+        if (moviePage >= totalMoviePages) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    loadMoreMovies();
+                }
+            },
+            { rootMargin: '300px' }
+        );
+
+        observer.observe(element);
+
+        // Stop observing when the search changes or the component unmounts
+        return () => observer.disconnect();
+    }, [
+        loadMoreMovies,
+        query,
+        selectedGenre,
+        moviePage,
+        totalMoviePages,
+    ]);
+
+    // Load personalized movie recommendations for the logged-in user
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadRecommendations() {
+            // Wait until the authentication state has been determined
+            if (authLoading) return;
+
+            const authToken = token || localStorage.getItem('token');
+
+            // Recommendations are available only to logged-in users
+            if (!user || !authToken) {
+                setRecommendations([]);
+                setRecommendationLoading(false);
+                setRecommendationError('');
+                return;
+            }
+
+            setRecommendationLoading(true);
+            setRecommendationError('');
+
+            try {
+                const response = await fetch(
+                    `${API}/recommendations/movies`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${authToken}`,
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error('Recommendation request failed');
+                }
+
+                const data = await response.json();
+
+                // Fetch full movie details for every recommended movie ID
+                const details = await Promise.all(
+                    (data.recommendations || []).map(async (recommendation) => {
+                        try {
+                            const movieResponse = await fetch(
+                                `${API}/movies/${recommendation.id}`
+                            );
+
+                            if (!movieResponse.ok) return null;
+
+                            return await movieResponse.json();
+                        } catch (err) {
+                            console.error(
+                                'Could not load recommended movie:',
+                                err
+                            );
+                            return null;
+                        }
+                    })
+                );
+
+                // Ignore results if this effect has already been cancelled
+                if (!cancelled) {
+                    setRecommendations(details.filter(Boolean));
+                }
+            } catch (err) {
+                console.error('Recommendation loading failed:', err);
+
+                if (!cancelled) {
+                    setRecommendations([]);
+                    setRecommendationError(
+                        'Unable to load recommendations'
+                    );
+                }
+            } finally {
+                if (!cancelled) {
+                    setRecommendationLoading(false);
+                }
+            }
+        }
+
+        loadRecommendations();
+
+        // Prevent outdated requests from updating the component
+        return () => {
+            cancelled = true;
+        };
+    }, [user, token, authLoading]);
+
+    // Reuse the same movie card layout for search results and recommendations
+    const renderMovieCard = (movie) => (
+        <MediaCard
+            key={movie.id}
+            id={movie.id}
+            title={movie.title}
+            posterUrl={
+                movie.poster_path
+                    ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
+                    : null
+            }
+            date={movie.release_date}
+            rating={movie.vote_average}
+            type="movie"
+            isFavorite={favoriteIds.includes(Number(movie.id))}
+            onFavoriteToggle={() => toggleFavorite(movie)}
+            action={
+                <AddToGroup
+                    groups={myGroups}
+                    movieId={movie.id}
+                    mediaType="movie"
+                    title={movie.title}
+                    posterPath={movie.poster_path}
+                />
+            }
+        />
+    );
+
+    // Show recommendations only on the default page for logged in users
+    const showRecommendations =
+        !authLoading &&
+        user &&
+        (token || localStorage.getItem('token')) &&
+        !query.trim() &&
+        selectedGenre === null;
 
     return (
         <div className="media-page">
@@ -214,23 +488,34 @@ function Movies() {
                     placeholder="Search movies..."
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                            search();
+                        }
+                    }}
                 />
 
                 <button onClick={search}>
                     Search
                 </button>
 
-                <button className={`genre-button ${showGenres ? 'active' : ''}`} onClick={() => setShowGenres(!showGenres)}>
+                <button
+                    className={`genre-button ${showGenres ? 'active' : ''}`}
+                    onClick={() => setShowGenres((current) => !current)}
+                >
                     Genres
                 </button>
             </div>
 
-            {/* Show the genre buttons when the genre menu is opened */}
+            {/* Display genre filters when the genre menu is open */}
             {showGenres && (
                 <div className="genre-list">
                     {genres.map((genre) => (
                         <button
-                            className={selectedGenre === genre.id ? 'active' : ''}
+                            key={genre.id}
+                            className={
+                                selectedGenre === genre.id ? 'active' : ''
+                            }
                             onClick={() => searchByGenre(genre.id)}
                         >
                             {genre.name}
@@ -239,69 +524,51 @@ function Movies() {
                 </div>
             )}
 
-            {error && <p>{error}</p>}
+            {error && <p role="alert">{error}</p>}
 
+            {/* Show personalized recommendations on the default movie page */}
+            {showRecommendations && (
+                <section className="recommendations-section">
+                    <h2>Recommended for you</h2>
+
+                    {recommendationLoading && (
+                        <p>Loading recommendations...</p>
+                    )}
+
+                    {recommendationError && (
+                        <p role="alert">{recommendationError}</p>
+                    )}
+
+                    {!recommendationLoading &&
+                        !recommendationError &&
+                        recommendations.length === 0 && (
+                            <p>No recommendations available.</p>
+                        )}
+
+                    {!recommendationLoading &&
+                        recommendations.length > 0 && (
+                            <MediaGrid>
+                                {recommendations.map(renderMovieCard)}
+                            </MediaGrid>
+                        )}
+                </section>
+            )}
+
+            {/* Display actor and movie search results in the same grid */}
             <MediaGrid>
-                {/* Display movies found through actor searches */}
-                {actors.map((movie) => (
-                    <MediaCard
-                        key={movie.id}
-                        id={movie.id}
-                        title={movie.title}
-                        posterUrl={
-                            movie.poster_path
-                                ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-                                : null
-                        }
-                        date={movie.release_date}
-                        rating={movie.vote_average}
-                        type="movie"
-                        isFavorite={favoriteIds.includes(movie.id)}
-                        onFavoriteToggle={() => toggleFavorite(movie)}
-
-                        action={
-                            <AddToGroup
-                                groups={myGroups}
-                                movieId={movie.id}
-                                mediaType="movie"
-                                title={movie.title}
-                                posterPath={movie.poster_path}
-                            />
-                        }
-                    />
-                ))}
-
-                {/* Display movies found through movie title or genre searches */}
-                {movies.map((movie) => (
-                    <MediaCard
-                        key={movie.id}
-                        id={movie.id}
-                        title={movie.title}
-                        posterUrl={
-                            movie.poster_path
-                                ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
-                                : null
-                        }
-                        date={movie.release_date}
-                        rating={movie.vote_average}
-                        type="movie"
-                        isFavorite={favoriteIds.includes(movie.id)}
-                        onFavoriteToggle={() => toggleFavorite(movie)}
-
-                        action={
-                            <AddToGroup
-                                groups={myGroups}
-                                movieId={movie.id}
-                                mediaType="movie"
-                                title={movie.title}
-                                posterPath={movie.poster_path}
-                            />
-                        }
-                    />
-                ))}
+                {actors.map(renderMovieCard)}
+                {movies.map(renderMovieCard)}
             </MediaGrid>
+
+            {/* Detect when the user reaches the end of the movie list so more movies can be loaded */}
+            {(query.trim() || selectedGenre !== null) &&
+                moviePage < totalMoviePages && (
+                    <div ref={loadMoreRef}>
+                        {movieLoading && <p>Loading more movies...</p>}
+                    </div>
+                )}
         </div>
-    )
+    );
 }
 
 export default Movies;

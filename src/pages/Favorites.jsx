@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import MediaCard from '../components/MediaCard';
 import MediaGrid from '../components/MediaGrid';

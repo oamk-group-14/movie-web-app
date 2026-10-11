@@ -26,8 +26,9 @@ const tmdbFetch = async (path) => {
 
 export const searchMovies = async (req, res) => {
   try {
-    // Get search term from query
+    // Get search term and page number from query
     const { query } = req.query;
+    const page = Number(req.query.page) || 1;
 
     // Check that search term exists
     if (!query) {
@@ -36,36 +37,32 @@ export const searchMovies = async (req, res) => {
       });
     }
 
-    // This can be replaced with shared helper at the top of the page
-    // Search movies from TMDB 
-    const response = await fetch(
-      `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`,
-      {
-        headers: {
-          // TMDB API token from .env
-          Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
-          accept: "application/json"
-        }
-      }
-    );
-
-    // Return TMDB error if request fails
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: "TMDB API request failed"
+    // Check that page number is valid
+    if (page < 1) {
+      return res.status(400).json({
+        error: "Invalid page number"
       });
     }
 
-    const data = await response.json();
+    // Search movies from TMDB
+    const data = await tmdbFetch(
+      `/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=${page}`
+    );
 
-    // Send results to frontend
-    res.json(data);
+    // Send the movies to frontend and how many more pages of results are available
+    res.json({
+      results: data.results,
+      page: data.page,
+      totalPages: data.total_pages,
+      totalResults: data.total_results
+    });
+
   } catch (error) {
     console.error("Movie search error:", error);
-
-    // Handle server errors
-    res.status(500).json({
-      error: "An error occurred on the server"
+    res.status(error.status || 500).json({
+      error: error.status
+        ? "TMDB API request failed"
+        : "An error occurred on the server"
     });
   }
 };
@@ -143,44 +140,6 @@ export const searchActors = async (req, res) => {
         })
     }
 }
-
-/*export const searchActors = async (req, res) => {
-  try {
-    const { query } = req.query
-
-    if (!query) {
-      return res.status(400).json({
-        error: 'Actor name is missing'
-      })
-    }
-
-    const response = await fetch(
-      `https://api.themoviedb.org/3/search/person?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=1`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
-          accept: 'application/json'
-        }
-      }
-    )
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: 'TMDB API request failed'
-      })
-    }
-
-    const data = await response.json()
-
-    res.json(data)
-  } catch (error) {
-    console.error('Actor search error:', error)
-
-    res.status(500).json({
-      error: 'An error occurred on the server'
-    })
-  }
-}*/
 
 export const getMovie = async (req, res) => {
   try {
@@ -295,20 +254,45 @@ export const getGenres = async (req, res) => {
 export const discoverMovies = async (req, res) => {
 	const genreId = req.params.id
 
-    try {
-    const response = await fetch (`https://api.themoviedb.org/3/discover/movie?with_genres=${genreId}&include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc`,
-        {
-            headers: {
-                Authorization: `Bearer ${process.env.TMDB_TOKEN}`,
-                accept: "application/json"
-                }
-            }
-        );
-        const data = await response.json()
+  // Get the requested page number from the URL
+  const page = Number(req.query.page) || 1
 
-        res.json(data.results);
-
-    } catch (error) {
-        res.status(500).json({ error: "internal server error" });
+  try {
+    if (!genreId) {
+      return res.status(400).json({
+        error: 'Genre ID is missing'
+      })
     }
+
+    // Check that the page number is a valid positive integer
+    if (!Number.isInteger(page) || page < 1) {
+      return res.status(400).json({
+        error: 'Invalid page number'
+      })
+    }
+
+    const data = await tmdbFetch(
+      `/discover/movie?with_genres=${encodeURIComponent(genreId)}&include_adult=false&include_video=false&language=en-US&page=${page}&sort_by=popularity.desc`
+    )
+
+    // Return the movies and page information so the frontend can load more results
+    res.json({
+      results: data.results,
+      page: data.page,
+      totalPages: data.total_pages,
+      totalResults: data.total_results
+    })
+
+  } catch (error) {
+      console.error('Genre search error:', error)
+
+      res.status(error.status || 500).json({
+        error: error.status
+          ? 'TMDB API request failed'
+          : 'An error occurred on the server'
+      })
+  }
 }
+
+
+
