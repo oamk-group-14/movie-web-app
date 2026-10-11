@@ -1,7 +1,9 @@
 import {
     addFavorite,
     removeFavorite,
-    getFavorites
+    getFavorites,
+    getShareToken,
+    getSharedList
 } from '../models/favorite.js'
 
 export const addToFavorites = async (req, res) => {
@@ -116,6 +118,55 @@ export const listFavorites = async (req, res) => {
 
         res.status(500).json({
             error: 'Failed to get favorites'
+        })
+    }
+}
+
+// Checks if it's UUID format
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export const getShareLink = async (req, res) => {
+    try {
+        const shareToken = await getShareToken(req.user.id)
+
+        res.json({
+            shareToken
+        })
+
+    } catch (error) {
+        console.error('Error getting share token:', error)
+
+        res.status(500).json({
+            error: 'Failed to get share link'
+        })
+    }
+}
+
+export const getSharedFavorites = async (req, res) => {
+    try {
+        const { shareToken } = req.params
+
+        if (!UUID_PATTERN.test(shareToken)) {
+            return res.status(404).json({
+                error: 'Shared list not found'
+            })
+        }
+
+        const list = await getSharedList(shareToken)
+
+        if (!list) {
+            return res.status(404).json({
+                error: 'Shared list not found'
+            })
+        }
+
+        res.json(list)
+
+    } catch (error) {
+        console.error('Error getting shared favorites:', error)
+
+        res.status(500).json({
+            error: 'Failed to get shared list'
         })
     }
 }

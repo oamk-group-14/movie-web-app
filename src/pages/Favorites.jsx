@@ -7,6 +7,7 @@ function Favorites() {
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [shareMessage, setShareMessage] = useState('');
 
     // Load the logged-in user's favorite movies and TV shows
     useEffect(() => {
@@ -103,6 +104,40 @@ function Favorites() {
         }
     };
 
+    // Copy a public link to the user's favorite list
+    const shareFavorites = async () => {
+        const token = localStorage.getItem('token');
+
+        try {
+            const response = await fetch(
+                'http://localhost:3000/api/favorites/share',
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Share link fetch failed');
+            }
+
+            const data = await response.json();
+            const shareUrl = `${window.location.origin}/favorites/shared/${data.shareToken}`;
+
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                setShareMessage('Link copied to clipboard');
+            } catch {
+                // Clipboard may be blocked by the browser, so show the link instead
+                setShareMessage(shareUrl);
+            }
+        } catch (error) {
+            console.error('Error sharing favorites:', error);
+            setShareMessage('Unable to create share link');
+        }
+    };
+
     // Filter by all media, movies, or TV shows
     const filteredFavorites = favorites.filter((favorite) => {
         if (filter === 'all') {
@@ -123,6 +158,11 @@ function Favorites() {
     return (
         <div className="media-page">
             <h1>My favorites</h1>
+
+            <div className="favorites-share">
+                <button onClick={shareFavorites}>Share list</button>
+                {shareMessage && <span>{shareMessage}</span>}
+            </div>
 
             <div className="favorites-filter">
                 <button
