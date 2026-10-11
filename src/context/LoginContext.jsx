@@ -36,11 +36,13 @@ export function LoginProvider({ children }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
+
+        const data = await response.json().catch(() => ({}));
+
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error (errorData.message);
+            throw new Error(data.message || 'Registration failed');
         }
-        return await response.json();
+        return data;
     };
 
 

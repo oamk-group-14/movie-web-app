@@ -25,7 +25,12 @@ function Register() {
         // When register failed show an error message
         } catch (error) {
             console.error(error)
+
+            if(error.message){
+                setError(error.message)
+            } else {
             setError('Registration failed. Please try again.')
+            }
         // Stop the loading state whether register succeeded or failed
         } finally {
             setLoading(false)
