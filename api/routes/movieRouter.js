@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { searchMovies, searchActors, getGenres, discoverMovies, getMovie, getNowShowing } from '../controllers/movieController.js'
+import { searchMovies, searchActors, getGenres, discoverMovies, getMovie, getNowShowing, getPopularMovies } from '../controllers/movieController.js'
 
 const router = express.Router()
 
@@ -18,6 +18,9 @@ router.get('/genre/:id', discoverMovies)
 
 // Movies currently in theatres
 router.get('/now-showing', getNowShowing)
+
+// Get popular movies 
+router.get('/popular', getPopularMovies)
 
 // Get movie by ID
 router.get('/:id', getMovie)

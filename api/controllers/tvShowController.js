@@ -1,4 +1,10 @@
 const TMDB_BASE = "https://api.themoviedb.org/3";
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
+
+// Popular TV shows are saved to server memory for 60 minutes
+let popularTvCache = null;
+let popularTvCachedAt = 0;
+const CACHE_DURATION = 60 * 60 * 1000;
 
 // Shared helper for all TMDB requests
 const tmdbFetch = async (path) => {
@@ -16,6 +22,42 @@ const tmdbFetch = async (path) => {
     }
 
     return response.json();
+};
+
+// Popular TV shows, cached for 60 minutes
+export const getPopularTvShows = async (req, res) => {
+  try {
+    const now = Date.now();
+
+    if (popularTvCache && now - popularTvCachedAt < CACHE_DURATION) {
+      return res.json(popularTvCache);
+    }
+
+    const data = await tmdbFetch("/tv/popular?language=en-US&page=1");
+
+    const shows = data.results.map((show) => ({
+      id: show.id,
+      title: show.name,
+      year: show.first_air_date ? show.first_air_date.slice(0, 4) : null,
+      posterUrl: show.poster_path
+        ? `${TMDB_IMAGE_BASE}/w300${show.poster_path}`
+        : null,
+      voteAverage: show.vote_average
+    }));
+
+    popularTvCache = shows;
+    popularTvCachedAt = now;
+
+    res.json(shows);
+  } catch (error) {
+    console.error("Popular TV shows fetch error:", error);
+
+    res.status(error.status || 500).json({
+      error: error.status
+        ? "TMDB API request failed"
+        : "An error occurred on the server"
+    });
+  }
 };
 
 export const searchTvShows = async (req, res) => {
