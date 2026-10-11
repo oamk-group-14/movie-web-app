@@ -1,7 +1,36 @@
-// Import database functions for the logged-in user's reviews and favorites
 import { getUserReviews, getUserFavorites } from '../models/recommend.js';
 
 const TMDB_BASE = 'https://api.themoviedb.org/3';
+
+// Set the Ollama API base URL from the .env file or use the default cloud URL
+const OLLAMA_URL = (process.env.OLLAMA_URL || 'https://ollama.com')
+    .replace(/\/+$/, '');
+
+// Send a prompt to Ollama Cloud using the API key from the .env file
+const ollamaGenerate = async (prompt) => {
+    // Stop the request if the Ollama API key is missing
+    if (!process.env.OLLAMA_API_KEY) {
+        throw new Error('OLLAMA_API_KEY is missing from backend environment');
+    }
+
+    // Send the prompt to Ollama Cloud and include the API key for authentication
+    return fetch(`${OLLAMA_URL}/api/generate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.OLLAMA_API_KEY}`
+        },
+        // Configure the model request and ask Ollama to return JSON without streaming
+        body: JSON.stringify({
+            model: 'gemma4:cloud',
+            prompt,
+            stream: false,
+            format: 'json'
+        }),
+        // Allow extra time for the cloud model to generate recommendations
+        signal: AbortSignal.timeout(400000)
+    });
+};
 
 // Fetch data from TMDB using the API token from the .env file
 const tmdbFetch = async (path) => {
@@ -167,30 +196,8 @@ export const getMovieRecommendations = async (req, res) => {
             'RECOMMENDATION: Sending movie request to Ollama'
         );
 
-        // Send the personalized recommendation request to Ollama
-        const response = await fetch(
-            `${process.env.OLLAMA_URL}/api/generate`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: 'gemma4:cloud',
-                    prompt,
-                    stream: false,
-                    format: 'json'
-                }),
-
-                // Allow enough time for the AI model to respond
-                signal: AbortSignal.timeout(400000)
-            }
-        );
-
-        console.log(
-            'RECOMMENDATION: Ollama status:',
-            response.status
-        );
+        // Send the personalized recommendation request to Ollama Cloud
+        const response = await ollamaGenerate(prompt);
 
         // Stop processing if Ollama returns an error
         if (!response.ok) {
@@ -308,21 +315,8 @@ export const getTvShowRecommendations = async (req, res) => {
             })))}
             `;
 
-        // Ask Ollama to generate personalized recommendations
-        const response = await fetch(
-            `${process.env.OLLAMA_URL || 'http://localhost:11434'}/api/generate`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'gemma4:cloud',
-                    prompt,
-                    stream: false,
-                    format: 'json'
-                }),
-                signal: AbortSignal.timeout(400000)
-            }
-        );
+        // Send the personalized TV show recommendation request to Ollama Cloud
+        const response = await ollamaGenerate(prompt);
 
         // Handle Ollama errors
         if (!response.ok) {
