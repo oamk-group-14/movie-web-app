@@ -106,4 +106,60 @@ export const getFavorites = async (userId) => {
     )
 
     return result.rows
+
+}
+
+// Returns the user's share token, creating the favourite list if needed
+export const getShareToken = async (userId) => {
+    const result = await pool.query(
+        `
+        INSERT INTO Favourite_Lists (user_id)
+        VALUES ($1)
+        ON CONFLICT (user_id) DO UPDATE SET user_id = EXCLUDED.user_id
+        RETURNING share_token
+        `,
+        [userId]
+    )
+
+    return result.rows[0].share_token
+}
+
+// Returns a shared favourite list by its share token, or null if not found
+export const getSharedList = async (shareToken) => {
+    const listResult = await pool.query(
+        `
+        SELECT list_id, list_name
+        FROM Favourite_Lists
+        WHERE share_token = $1
+        `,
+        [shareToken]
+    )
+
+    const list = listResult.rows[0]
+
+    if (!list) {
+        return null
+    }
+
+    const itemsResult = await pool.query(
+        `
+        SELECT
+            movie_id,
+            media_type,
+            title,
+            poster_path,
+            release_year,
+            vote_average,
+            added_at
+        FROM Favourite_Items
+        WHERE list_id = $1
+        ORDER BY added_at DESC
+        `,
+        [list.list_id]
+    )
+
+    return {
+        listName: list.list_name,
+        favorites: itemsResult.rows
+    }
 }

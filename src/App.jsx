@@ -15,6 +15,7 @@ import Groups from './pages/Groups.jsx'
 import NewGroup from './pages/NewGroup.jsx'
 import Group from './pages/Group.jsx'
 import SubmitReview from './pages/Review.jsx'
+import SharedFavorites from './pages/SharedFavorites.jsx'
 
 
 function App() {
@@ -34,7 +35,8 @@ function App() {
         <Route path="/groups/:id" element={<Group />} />
         <Route path='/movies/:movieId/review' element={<SubmitReview />} />
         <Route path='/tvshows/:id/review' element={<SubmitReview />} />
-        
+        <Route path='/favorites/shared/:shareToken' element={<SharedFavorites />} />
+
 
 
         {/*Pages visible to only logged in users should be wrapped like this.*/}
