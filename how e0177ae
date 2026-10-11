@@ -1,0 +1,15 @@
+[33mcommit e0177ae85b82f12d8ce14fc7125cc5a5e800c263[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/favoriteslist-and-responsive-ui[m[33m)[m
+Author: sinilaa <emilia.laamanen@gmail.com>
+Date:   Sun Oct 11 03:19:54 2026 +0300
+
+    my local changes
+
+ api/controllers/movieController.js     | 136 [32m++++++[m[31m-------[m
+ api/controllers/recommendController.js | 359 [32m+++++++++++++++++++++++++++++++[m[31m--[m
+ api/controllers/tvShowController.js    | 299 [32m+++++++++++++[m[31m--------------[m
+ api/models/recommend.js                |   1 [32m+[m
+ api/routes/recommendRouter.js          |   8 [32m+[m[31m-[m
+ src/pages/Favorites.jsx                |   2 [32m+[m[31m-[m
+ src/pages/Movies.jsx                   | 266 [32m+++++++++++++++++++++++[m[31m-[m
+ src/pages/TVShows.jsx                  | 273 [32m+++++++++++++++++++++++[m[31m--[m
+ 8 files changed, 1076 insertions(+), 268 deletions(-)
