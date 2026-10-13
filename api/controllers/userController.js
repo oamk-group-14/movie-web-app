@@ -11,7 +11,7 @@ export const deleteMe = async (req, res) => {
             });
         }
 
-        res.status(204).send();
+        res.status(200).json({ message: 'Account deleted successfully'});
 
     } catch (error) {
         console.error('Delete account error:', error);
