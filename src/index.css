@@ -275,7 +275,6 @@ body {
   width: 500px;
   padding: 40px;
   background-color: #302b3d;
-
   border: 1px solid #4a405a;
   border-radius: 16px;
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
@@ -898,6 +897,7 @@ body {
   margin-top: 30px;
   background-color:#272331;
   border-radius: 12px;
+  box-sizing: border-box;
 }
 
 .reviews-container h2 {
@@ -919,6 +919,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 120px;
 }
 
 .review-user {
@@ -933,10 +934,10 @@ body {
 }
 
 /* ======================
-    REVIEWS - MOBILE 
+    REVIEWS-LIST - TABLET 
 ====================== */
 
-@media (max-width: 800px){
+@media (max-width: 768px){
 
   .reviews-container {
     padding: 20px;
@@ -950,7 +951,7 @@ body {
 
   .review-user-info{
     align-items: flex-start;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     padding-bottom: 10px;
     width: 100%;
   }
@@ -959,27 +960,23 @@ body {
     margin-bottom: 5px;
   }
 
-  .review-box {
-    padding: 25px 30px;
-    margin: 10px;
-  }
+}
 
-  .review-box h1 {
-    font-size: 1.8rem;
-  }
+/* ======================
+    REVIEWS-LIST - MOBILE 
+====================== */
 
-  .review-buttons, .review-not-logged-in{
-    width: 100%;
-    gap: 10px;
+@media (max-width: 550px){
+
+  .reviews-container {
+    padding: 15px;
   }
 
 }
 
-
 /* ======================
     Review-form 
 ====================== */
-
 
 .review {
   display: flex;
@@ -991,10 +988,13 @@ body {
 
 .review-box {
   padding: 40px;
-  background-color: #70458f;
-  border-radius: 12px;
+  background-color: #302b3d;
+  border: 1px solid #4a405a;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
   max-width: 500px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .review-form {
@@ -1019,38 +1019,30 @@ body {
   gap: 20px;
 }
 
-.add-reviewBtn {
-  background-color:#70458f;
+.add-reviewBtn, .review-submit-button, 
+.cancelBtn, .review-loginBtn, .review-registerBtn {
+  background-color: #8254e8;
   cursor: pointer;
   color: white;
-  border-radius: 4px;
+  border-radius: 16px;
   font-family: inherit;
   font-size: 15px;
-  padding: 9px 12px;
+  padding: 9px;
   font-weight: 600;
+  border: none;
 
 }
 
 .add-reviewBtn:hover {
-  background-color: #8254e8;
+  background-color: #b18aff;
 }
 
-.review-submit-button{
-  cursor: pointer;
-  padding: 10px 20px;
-  color: white;
-  background-color: #4a405a;
-  border-radius: 4px;
-  cursor: pointer;
+.review-submit-button:hover {
+  background-color: #b18aff;
 }
 
-.cancelBtn{
-  cursor: pointer;
-  padding: 10px 20px;
-  color: white;
-  background-color: #4a405a;
-  border-radius: 4px;
-  cursor: pointer;
+.cancelBtn:hover{
+  background-color: #b18aff;
 }
 
 .review-not-logged-in {
@@ -1061,36 +1053,33 @@ body {
 }
 
 .review-not-logged-in p {
-    font-size: 1.1rem;
-
+  font-size: 1.1rem;
 }
 
-.review-loginBtn {
-  cursor: pointer;
-  color: white;
-  border-radius: 4px;
-  background-color:#8254e8;
-  font-family: inherit;
-  font-size: 15px;
-  padding: 9px 12px;
-  font-weight: 600;
-  
+.review-loginBtn:hover {
+  background-color: #b18aff;
 }
-.review-registerBtn {
-  cursor: pointer;
-  color: white;
-  border-radius: 4px;
-  background-color:#8254e8;
-  font-family: inherit;
-  font-size: 15px;
-  padding: 9px 12px;
-  font-weight: 600;
+
+.review-registerBtn:hover {
+  background-color: #b18aff;
 }
+
+/* ======================
+    Review-form - TABLET
+====================== */
+@media (max-width: 800px){
+
+  .review-box {
+    padding: 30px;
+    max-width: 450px;
+  } 
+}
+
 
 /* ======================
     Review-form - MOBILE
 ====================== */
-@media (max-width: 550){
+@media (max-width: 550px){
 
   .review {
     padding: 10px;
@@ -1118,7 +1107,7 @@ body {
     padding: 10px;
     border-radius: 4px;
     resize: vertical;
-}
+  }
 }
 
 
@@ -1178,11 +1167,13 @@ body {
 
 .movie-poster{
   flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .movie-poster img {
   width: 100%;
-  height: 100%;
+  height: auto;
+  object-fit: contain;
   border-radius: 12px;
   display: block;
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -1226,27 +1217,44 @@ body {
   }
 
   .movie-detail-flex{
-    flex-direction: column;
-    align-items: center;
-    gap: 25px;
+    display: flex;
+    flex-direction: row !important;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 15px;
   }
 
   .movie-info {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-  }
-  .movie-info h1 {
-    font-size: 1.8rem;
+    text-align: left;
+    align-items: flex-start;
+    font-size: 1rem;
   }
 
+  .movie-info h1 {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+  }
+
+  
+.movie-meta-data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  font-size: 0.85rem;
+}
+
   .movie-poster {
-    width: 200px;
+    width: 180px;
+    max-width: 30%;
     height: auto;
   }
 
   .movie-poster img {
     height: auto;
     object-fit: contain;
+    width: 100%;
   }
 }
 
@@ -1254,7 +1262,25 @@ body {
 
 @media(max-width: 550px){
 
+  .movie-detail-flex {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .movie-poster {
+    width: 200px;
+    max-width: 100%;
+  }
+
+  .movie-info {
+    text-align: center;
+    align-items: center;
+    margin: 10px;
+  }
+
   .movie-meta-data {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     width: 100%;
@@ -1285,11 +1311,12 @@ body {
 
 .tvShow-poster{
   flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .tvShow-poster img {
   width: 100%;
-  height: 100%;
+  height: auto;
   border-radius: 12px;
   display: block;
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
@@ -1323,6 +1350,87 @@ body {
 
 }
 
+
+/*TV-SHOW DETAILS - Tablets */
+
+@media (max-width: 800px) {
+
+  .tvShow-detail-container{
+    padding: 25px 20px;
+    margin: 15px;
+  }
+
+  .tvShow-detail-flex{
+    display: flex;
+    flex-direction: row !important;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 15px;
+  }
+
+  .tvShow-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    align-items: flex-start;
+    font-size: 1rem;
+  }
+
+  .tvShow-info h1 {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+  }
+  
+.tvShow-meta-data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  font-size: 0.85rem;
+}
+
+  .tvShow-poster {
+    width: 180px;
+    max-width: 30%;
+    height: auto;
+  }
+
+  .tvShow-poster img {
+    height: auto;
+    object-fit: contain;
+    width: 100%;
+  }
+}
+
+/* TV-SHOW DETAILS - MOBILE PHONES */
+
+@media(max-width: 550px){
+
+  .tvShow-detail-flex {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .tvShow-poster {
+    width: 200px;
+    max-width: 100%;
+  }
+
+  .tvShow-info {
+    text-align: center;
+    align-items: center;
+    margin: 10px;
+  }
+
+  .tvShow-meta-data {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    text-align: left;
+  }
+
+}
 
 
 
