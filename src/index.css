@@ -1433,7 +1433,10 @@ body {
 
 }
 
+
+/* =========================
    HOME PAGE
+========================= */
 
 .home-section {
   margin-bottom: 40px;
@@ -1475,6 +1478,5 @@ body {
     display: none;
   }
 }
-
 
 
