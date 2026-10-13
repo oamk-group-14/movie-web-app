@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { pool } from '../models/db.js'
 import { createUser, findUserByEmail } from '../models/user.js';
+import { revokeToken } from '../middleware/authMiddleware.js';
 
 export const login = async (req, res) => {
     try {
@@ -98,3 +99,34 @@ export const register = async (req, res) => {
     };
 
 }
+
+
+export const logout = (req, res) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+            message: 'Authentication token is required'
+        });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        revokeToken(token, decoded.exp);
+
+        return res.status(200).json({
+            message: 'Logged out successfully'
+        });
+    } catch (error) {
+        return res.status(401).json({
+            message: 'Invalid or expired token'
+        });
+    }
+};
+
