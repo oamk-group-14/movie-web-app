@@ -1041,5 +1041,18 @@ body {
   }
 }
 
+/* =========================
+   NOTICE
+========================= */
 
+.notice {
+  margin-bottom: 25px;
+  padding: 14px 18px;
+  border: 1px solid #8254e8;
+  border-left-width: 5px;
+  border-radius: 8px;
+  background-color: #302b3d;
+  color: #ffffff;
+  font-size: 15px;
+}
 
