@@ -54,9 +54,8 @@ function Movie() {
     // Return movie details to frontend
     return (
         <div className='movie-detail-container'>
-            <h1>{movie.title}</h1>
 
-            <div className='movie-detail-flex'>
+        <div className='movie-detail-flex'>
             <div className='movie-poster'>
             {movie.poster_path && (
                 <img
@@ -67,22 +66,25 @@ function Movie() {
             )} </div>
 
             <div className='movie-info'>
-            <p>{movie.overview}</p>
-            <p>Release Date: {movie.release_date}</p>
-            <p>Genres: {movie.genres.map((genre) => genre.name).join(', ')}</p>
-            <p>Runtime: {movie.runtime}</p>
-            <p>Vote Average: {movie.vote_average}</p>
+                <h1>{movie.title}</h1>
 
-              <Link to={`/movies/${id}/review`} state={{ movieTitle: movie.title, mediaType: 'movie'}}>
+                <div className='movie-meta-data'>
+                    <p>Release Date: {movie.release_date}</p>
+                    <p>Genres: {movie.genres.map((genre) => genre.name).join(', ')}</p>
+                    <p>Runtime: {movie.runtime}</p>
+                    <p>Vote Average: {movie.vote_average}</p>
+                </div>
+
+                <p>{movie.overview}</p>
+
+            <Link to={`/movies/${id}/review`} state={{ movieTitle: movie.title, mediaType: 'movie'}}>
             <button className='add-reviewBtn'> Add Review </button> 
             </Link>
 
             </div>
-
             </div>
 
-            <div>
-
+            <div className='movie-reviews'>
                 <ReviewsList mediaType='movie'/>
 
             </div>
