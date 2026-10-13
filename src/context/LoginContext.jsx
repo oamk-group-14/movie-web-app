@@ -45,8 +45,6 @@ export function LoginProvider({ children }) {
         return data;
     };
 
-
-    // NOT TESTED because other parts are not ready yet. Test at the end of the week
     const login = async (email, password) => {
         const response = await fetch("http://localhost:3000/api/auth/login", {
             method: "POST",
@@ -66,7 +64,6 @@ export function LoginProvider({ children }) {
         localStorage.setItem("user", JSON.stringify(data.user));
     };
 
-    // NOT TESTED because other parts are not ready yet. Test at the end of the week
     const deleteAccount = async () => {
         const response = await fetch("http://localhost:3000/api/users/me", {
             method: "DELETE",
@@ -76,11 +73,6 @@ export function LoginProvider({ children }) {
         if (!response.ok) {
             throw new Error("Account deletion failed");
         }
-
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
 
     };
 
