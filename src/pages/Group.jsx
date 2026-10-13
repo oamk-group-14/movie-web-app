@@ -151,13 +151,13 @@ function Group() {
     }
   };
 
-  const handleRemoveMovie = async (movieId) => {
+  const handleRemoveMovie = async (mediaType, movieId) => {
     if (!window.confirm('Remove this movie from the group?')) return;
 
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://localhost:3000/groups/${id}/movies/${movieId}`,
+        `http://localhost:3000/groups/${id}/movies/${mediaType}/${movieId}`,
         {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` }
