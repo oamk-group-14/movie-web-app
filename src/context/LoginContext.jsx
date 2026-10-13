@@ -22,12 +22,30 @@ export function LoginProvider({ children }) {
     }, []);
 
 
-    const logout = () => {
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+    const logout = async () => {
+        try {
+            if (token) {
+                const response = await fetch(
+                    "http://localhost:3000/api/auth/logout",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
 
+                if (!response.ok) {
+                    throw new Error("Logout failed");
+                }
+            }
+        } finally {
+            // Always clear the local login state
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+        }
     };
 
     const register = async (email, password) => {
