@@ -109,16 +109,21 @@ return (
                 value={review}
                 onChange={(e) => setReview(e.target.value)}
                 />
-
+                <div className="review-buttons">
                 <button type="submit" className="review-submit-button"> Submit review </button>
-
+                <button type="button" onClick={() => navigate(-1)} className="cancelBtn"> Cancel </button>
+                </div>
             </form>
             ) :  (
-                <div className="not-logged-in"> 
+                <div className="review-not-logged-in"> 
                     <p> Login to leave a review </p>
-                    <button onClick={() => navigate("/login")}>
+                    <button onClick={() => navigate("/login")} className="review-loginBtn">
                     Login here
                     </button>
+
+                    <p> Don't have an account?</p>
+                    <button onClick={() => navigate("/register")} className="review-registerBtn"> Sign up here</button>
+
                 </div>
             )}
 

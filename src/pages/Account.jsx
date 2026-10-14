@@ -1,18 +1,26 @@
 import { useLogin } from "../context/LoginContext.jsx";
-import { useState } from "react";
+import { useState, startTransition } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Account() {
-    const { user, deleteAccount } = useLogin();
     const [confirming, setConfirming] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate()
+    const { user, deleteAccount, logout } = useLogin();
 
-    // Deletes account //NOT TESTED as account creation is not ready yet. Test at the end of the week.
+    // Deletes account and shows a confirmation on the home page
     const handleDelete = async () => {
         setError(null);
         try {
             await deleteAccount();
+
+            startTransition(() => {
+                navigate('/', {
+                    replace: true,
+                    state: { message: 'Your account was deleted successfully.' }
+                });
+                logout();
+            });
         } catch (err) {
             setError("Account deletion failed. Please try again.");
             setConfirming(false);

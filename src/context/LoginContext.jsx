@@ -22,12 +22,30 @@ export function LoginProvider({ children }) {
     }, []);
 
 
-    const logout = () => {
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+    const logout = async () => {
+        try {
+            if (token) {
+                const response = await fetch(
+                    "http://localhost:3000/api/auth/logout",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }
+                );
 
+                if (!response.ok) {
+                    throw new Error("Logout failed");
+                }
+            }
+        } finally {
+            // Always clear the local login state
+            setUser(null);
+            setToken(null);
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+        }
     };
 
     const register = async (email, password) => {
@@ -36,15 +54,15 @@ export function LoginProvider({ children }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
+
+        const data = await response.json().catch(() => ({}));
+
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error (errorData.message);
+            throw new Error(data.message || 'Registration failed');
         }
-        return await response.json();
+        return data;
     };
 
-
-    // NOT TESTED because other parts are not ready yet. Test at the end of the week
     const login = async (email, password) => {
         const response = await fetch("http://localhost:3000/api/auth/login", {
             method: "POST",
@@ -64,7 +82,6 @@ export function LoginProvider({ children }) {
         localStorage.setItem("user", JSON.stringify(data.user));
     };
 
-    // NOT TESTED because other parts are not ready yet. Test at the end of the week
     const deleteAccount = async () => {
         const response = await fetch("http://localhost:3000/api/users/me", {
             method: "DELETE",
@@ -74,11 +91,6 @@ export function LoginProvider({ children }) {
         if (!response.ok) {
             throw new Error("Account deletion failed");
         }
-
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
 
     };
 

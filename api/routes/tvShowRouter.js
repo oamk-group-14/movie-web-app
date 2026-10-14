@@ -1,5 +1,5 @@
 import express from 'express'
-import { searchTvShows, searchActors, discoverTvShows, getTvGenres, getTvShow } from '../controllers/tvShowController.js'
+import { searchTvShows, searchActors, discoverTvShows, getTvGenres, getTvShow, getPopularTvShows } from '../controllers/tvShowController.js'
 
 const router = express.Router()
 
@@ -14,6 +14,9 @@ router.get('/genres', getTvGenres)
 
 // Search TV shows by genre
 router.get('/genre/:id', discoverTvShows)
+
+// Get popular TV shows
+router.get('/popular', getPopularTvShows)
 
 // Get TV show by ID
 router.get('/:id', getTvShow)

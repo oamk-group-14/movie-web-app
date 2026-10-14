@@ -1940,19 +1940,23 @@ body {
   }
 }
 
-/* Reviews */
+/* ======================
+    REVIEWS-LIST
+====================== */
 
 .reviews-container {
   max-width: 1000px;
-  padding: 40px;
+  padding: 20px;
   text-align: left;
-  margin: auto;
-
+  margin-top: 30px;
+  background-color:#272331;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
 .reviews-container h2 {
   font-size: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .review-card {
@@ -1969,6 +1973,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 120px;
 }
 
 .review-user {
@@ -1982,38 +1987,183 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Review-form */
+/* ======================
+    REVIEWS-LIST - TABLET 
+====================== */
+
+@media (max-width: 768px){
+
+  .reviews-container {
+    padding: 20px;
+  }
+
+  .review-card {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.2rem;
+  }
+
+  .review-user-info{
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 10px;
+    width: 100%;
+  }
+
+  .review-user, .review-date {
+    margin-bottom: 5px;
+  }
+
+}
+
+/* ======================
+    REVIEWS-LIST - MOBILE 
+====================== */
+
+@media (max-width: 550px){
+
+  .reviews-container {
+    padding: 15px;
+  }
+
+}
+
+/* ======================
+    Review-form 
+====================== */
 
 .review {
-  margin: auto;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  background-color: #70458f;
+  min-height: 80vh;
+  padding: 20px;
+}
+
+.review-box {
   padding: 40px;
-  border-radius: 12px;
+  background-color: #302b3d;
+  border: 1px solid #4a405a;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
   max-width: 500px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .review-form {
   margin: auto;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 20px;
 }
 
-.add-reviewBtn {
-  align-self: flex-start;
-  padding: 10px 20px;
-  border: none;
-  color: white;
-  background-color:#70458f;
+.review-form textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
   border-radius: 4px;
+  border: 1px solid #aaa4b4;
+  resize: vertical;
+  max-height: 250px;
+}
+
+.review-buttons{
+  display: flex;
+  gap: 20px;
+}
+
+.add-reviewBtn, .review-submit-button, 
+.cancelBtn, .review-loginBtn, .review-registerBtn {
+  background-color: #8254e8;
   cursor: pointer;
+  color: white;
+  border-radius: 16px;
+  font-family: inherit;
+  font-size: 15px;
+  padding: 9px;
+  font-weight: 600;
+  border: none;
 
 }
 
 .add-reviewBtn:hover {
-  background-color: #8254e8;
+  background-color: #b18aff;
 }
+
+.review-submit-button:hover {
+  background-color: #b18aff;
+}
+
+.cancelBtn:hover{
+  background-color: #b18aff;
+}
+
+.review-not-logged-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+
+.review-not-logged-in p {
+  font-size: 1.1rem;
+}
+
+.review-loginBtn:hover {
+  background-color: #b18aff;
+}
+
+.review-registerBtn:hover {
+  background-color: #b18aff;
+}
+
+/* ======================
+    Review-form - TABLET
+====================== */
+@media (max-width: 800px){
+
+  .review-box {
+    padding: 30px;
+    max-width: 450px;
+  } 
+}
+
+
+/* ======================
+    Review-form - MOBILE
+====================== */
+@media (max-width: 550px){
+
+  .review {
+    padding: 10px;
+    min-height: 70vh;
+  }
+
+  .review-box {
+    padding: 25px 20px;
+    margin: 10px;
+    width: 100%;
+  }
+
+  .review-box h1 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .review-form {
+    gap: 15px;
+  }
+
+  .review-form textarea {
+    font-size: 0.95rem;
+    padding: 10px;
+    border-radius: 4px;
+    resize: vertical;
+  }
+}
+
 
 /* =========================
   FAVORITES SHARE
@@ -2049,4 +2199,351 @@ body {
   word-break: break-all;
 }
 
+/* =========================
+   MOVIE DETAILS
+========================= */
+
+.movie-detail-container{
+  margin: 30px auto;
+  border-radius: 12px;
+  padding: 20px 40px;
+  max-width: 1000px;
+}
+
+.movie-detail-flex{
+  display: flex;
+  gap: 40px;
+  align-items: stretch;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background-color:#272331;
+}
+
+.movie-poster{
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.movie-poster img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.movie-info{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 1.2rem;
+  margin: 25px 25px 30px 10px;
+}
+
+.movie-info h1 {
+  font-size: 2.4rem;
+  margin: 0 0 10px 0;
+}
+
+.movie-meta-data {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+
+}
+
+.movie-meta-data p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+
+}
+
+/* MOVIE DETAILS - Tablets */
+
+@media (max-width: 800px) {
+
+  .movie-detail-container{
+    padding: 25px 20px;
+    margin: 15px;
+  }
+
+  .movie-detail-flex{
+    display: flex;
+    flex-direction: row !important;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 15px;
+  }
+
+  .movie-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    align-items: flex-start;
+    font-size: 1rem;
+  }
+
+  .movie-info h1 {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+  }
+
+  
+.movie-meta-data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  font-size: 0.85rem;
+}
+
+  .movie-poster {
+    width: 180px;
+    max-width: 30%;
+    height: auto;
+  }
+
+  .movie-poster img {
+    height: auto;
+    object-fit: contain;
+    width: 100%;
+  }
+}
+
+/* MOVIE DETAILS - MOBILE PHONES */
+
+@media(max-width: 550px){
+
+  .movie-detail-flex {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .movie-poster {
+    width: 200px;
+    max-width: 100%;
+  }
+
+  .movie-info {
+    text-align: center;
+    align-items: center;
+    margin: 10px;
+  }
+
+  .movie-meta-data {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    text-align: left;
+  }
+
+}
+
+/* =========================
+   TV-SHOW DETAILS
+========================= */
+.tvShow-detail-container{
+  margin: 30px auto;
+  border-radius: 12px;
+  padding: 20px 40px;
+  max-width: 1000px;
+}
+
+.tvShow-detail-flex{
+  display: flex;
+  gap: 40px;
+  align-items: stretch;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  background-color:#272331;
+}
+
+.tvShow-poster{
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.tvShow-poster img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.tvShow-info{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 1.2rem;
+  margin: 25px 25px 30px 10px;
+}
+
+.tvShow-info h1 {
+  font-size: 2.4rem;
+  margin: 0 0 10px 0;
+}
+
+.tvShow-meta-data {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+
+}
+
+.tvShow-meta-data p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+
+}
+
+/* TV-SHOW DETAILS - Tablets */
+
+@media (max-width: 800px) {
+
+  .tvShow-detail-container{
+    padding: 25px 20px;
+    margin: 15px;
+  }
+
+  .tvShow-detail-flex{
+    display: flex;
+    flex-direction: row !important;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 15px;
+  }
+
+  .tvShow-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    align-items: flex-start;
+    font-size: 1rem;
+  }
+
+  .tvShow-info h1 {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+  }
+  
+.tvShow-meta-data {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  font-size: 0.85rem;
+}
+
+  .tvShow-poster {
+    width: 180px;
+    max-width: 30%;
+    height: auto;
+  }
+
+  .tvShow-poster img {
+    height: auto;
+    object-fit: contain;
+    width: 100%;
+  }
+}
+
+/* TV-SHOW DETAILS - MOBILE PHONES */
+
+@media(max-width: 550px){
+
+  .tvShow-detail-flex {
+    flex-direction: column !important;
+    align-items: center;
+    gap: 25px;
+  }
+
+  .tvShow-poster {
+    width: 200px;
+    max-width: 100%;
+  }
+
+  .tvShow-info {
+    text-align: center;
+    align-items: center;
+    margin: 10px;
+  }
+
+  .tvShow-meta-data {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    text-align: left;
+  }
+
+}
+
+
+/* =========================
+   HOME PAGE
+========================= */
+
+.home-section {
+  margin-bottom: 40px;
+}
+
+.home-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.home-section-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.home-section-header a {
+  color: #b18aff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.home-section-header a:hover {
+  text-decoration: underline;
+}
+
+
+/* Show only as many cards as fits on one row */
+
+@media (max-width: 1100px) {
+  .home-row > :nth-child(n + 5) {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .home-row > :nth-child(n + 4) {
+    display: none;
+  }
+}
+
+/* =========================
+   NOTICE
+========================= */
+
+.notice {
+  margin-bottom: 25px;
+  padding: 14px 18px;
+  border: 1px solid #8254e8;
+  border-left-width: 5px;
+  border-radius: 8px;
+  background-color: #302b3d;
+  color: #ffffff;
+  font-size: 15px;
+}
 

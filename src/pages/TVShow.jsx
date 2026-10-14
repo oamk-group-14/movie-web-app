@@ -51,35 +51,42 @@ function TVShow() {
     
     // Return TV show details to frontend
     return (
-        <div>
-            <h1>{tvshow.name}</h1>
-            
-            {tvshow.poster_path && (
-                <img
-                    src={`https://image.tmdb.org/t/p/w300${tvshow.poster_path}`}
-                    alt={tvshow.name}
-                    width="200"
-                />
-            )}
+        <div className='tvShow-detail-container'>
+            <div className='tvShow-detail-flex'>
 
-            <p>{tvshow.overview}</p>
-            <p>First Air Date: {tvshow.first_air_date}</p>
-            <p>Genres: {tvshow.genres.map((genre) => genre.name).join(', ')}</p>
-            <p>Vote Average: {tvshow.vote_average}</p>
+                <div className='tvShow-poster'>
+                    {tvshow.poster_path && (
+                    <img
+                        src={`https://image.tmdb.org/t/p/w300${tvshow.poster_path}`}
+                        alt={tvshow.name}
+                        width="200"
+                    />
+                )}
+                </div>
 
-            <Link to={`/tvshows/${id}/review`} state={{ tvshowName: tvshow.name, mediaType: 'tv'}}>
-            <button> Add Review </button>
-            </Link>
+                <div className='tvShow-info'>
+                    <h1>{tvshow.name}</h1>
 
-            <div>
+                    <div className='tvShow-meta-data'>
 
-                <ReviewsList mediaType='tv'/>
+                    <p>First Air Date: {tvshow.first_air_date}</p>
+                    <p>Genres: {tvshow.genres.map((genre) => genre.name).join(', ')}</p>
+                    <p>Vote Average: {tvshow.vote_average}</p>
+                    </div>
 
+                    <p>{tvshow.overview}</p>
+
+                    <Link to={`/tvshows/${id}/review`} state={{ tvshowName: tvshow.name, mediaType: 'tv'}}>
+                        <button className='add-reviewBtn'> Add Review </button>
+                    </Link>
+                </div>
             </div>
 
+            <div className='tv-reviews'>
+                <ReviewsList mediaType='tv'/>
+            </div>
 
         </div>
-
         
     )
 }

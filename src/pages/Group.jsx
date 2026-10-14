@@ -157,7 +157,7 @@ function Group() {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://localhost:3000/groups/${id}/movies/${movieId}`,
+        `http://localhost:3000/groups/${id}/movies/${mediaType}/${movieId}`,
         {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` }
