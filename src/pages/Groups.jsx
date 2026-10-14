@@ -29,21 +29,61 @@ function Groups() {
     if (error) return <p>{error}</p>;
 
     return (
-        <div>
-            <h1>Groups</h1>
-            <Link to="/groups/new">Create a new group</Link>
+        <div className="groups-page">
+            <div className="groups-header">
+                <div>
+                    <h1>Movie Groups</h1>
+                    <p>Join groups, share your favorites and discover new movies and TV shows with your community.</p>
+                </div>
+
+                <Link to="/groups/new" className="group-button">
+                    + Create group
+                </Link>
+            </div>
+
+            <div className="groups-section-header">
+                <h2>Your groups</h2>
+                <span>
+                    {groups.length} {groups.length === 1 ? 'group' : 'groups'}
+                </span>
+            </div>
 
             {groups.length === 0 ? (
-                <p>No groups yet.</p>
+                <div className="groups-empty">
+                    <h3>No groups yet</h3>
+                    <p>Create your first group and start collecting movies and TV shows together.</p>
+                    <Link to="/groups/new" className="group-button">
+                        Create your first group
+                    </Link>
+                </div>
             ) : (
-                <ul>
+                <div className="groups-grid">
                     {groups.map((group) => (
-                        <li key={group.group_id}>
-                            <Link to={`/groups/${group.group_id}`}>{group.group_name}</Link>
-                            {' — owner: '}{group.owner_email}
-                        </li>
+                        <Link
+                            to={`/groups/${group.group_id}`}
+                            className="group-card"
+                            key={group.group_id}
+                        >
+                            <div className="group-card-top">
+                                <div className="group-icon" aria-hidden="true">
+                                    🎬
+                                </div>
+                            </div>
+
+                            <h3>{group.group_name}</h3>
+
+                            <p className="group-owner">Owned by</p>
+                            <p className="group-owner-email">
+                                {group.owner_email}
+                            </p>
+
+                            <div className="group-card-footer">
+                                <span>View group</span>
+                                <span aria-hidden="true">→</span>
+                            </div>
+                        </Link>
                     ))}
-                </ul>
+                </div>
             )}
         </div>
     );
