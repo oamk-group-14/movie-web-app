@@ -16,7 +16,6 @@ function Navbar() {
         <Link to="/groups">Groups</Link>
       </div>
 
-      {/* Login and Sign in links, visible only when not logged in */}
       {!user && (
         <div className="auth-links">
           <Link className="sign-in-button" to="/register">
@@ -29,11 +28,9 @@ function Navbar() {
         </div>
       )}
 
-      {/*Links only visible to logged in users*/}
       {user && (
         <div className="user-links">
-
-          <Link className="account-link" to="/account">
+          <Link className="account-link" to="/account" aria-label="Account">
             <span className="account-icon-wrapper">
               <svg
                 className="account-icon"
@@ -56,17 +53,17 @@ function Navbar() {
               <path d="M15 12H3" />
               <path d="M21 3v18" />
             </svg>
-
             <span>Log out</span>
           </button>
-
         </div>
       )}
 
-
-
-      {/* Hamburger menu mobile + tablet */}
-      <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+      <button
+        className="hamburger"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+        aria-expanded={menuOpen}
+      >
         {menuOpen ? '✕' : '☰'}
       </button>
 
@@ -75,37 +72,18 @@ function Navbar() {
           <Link to="/" onClick={() => setMenuOpen(false)}>
             Home
           </Link>
-
           <Link to="/movies" onClick={() => setMenuOpen(false)}>
             Movies
           </Link>
-
           <Link to="/tvshows" onClick={() => setMenuOpen(false)}>
             TV Shows
           </Link>
-
           <Link to="/now-showing" onClick={() => setMenuOpen(false)}>
             Now Showing
           </Link>
-
           <Link to="/groups" onClick={() => setMenuOpen(false)}>
             Groups
           </Link>
-
-          {/*Links only visible to logged in users*/}
-
-          {user && (
-            <Link to='/account' onClick={() => setMenuOpen(false)}>
-              Account
-            </Link>
-          )}
-
-          {user && (
-            <button onClick={() => { logout(); setMenuOpen(false); }}>
-              Log out
-            </button>
-          )}
-
         </div>
       )}
     </nav>
